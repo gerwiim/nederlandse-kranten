@@ -24,7 +24,7 @@ const kranten = [
   {
     naam: "De Telegraaf",
     url: "https://www.telegraaf.nl/",
-    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3443/covers/Preview-MEDIUM-271730.jpg",
+    voorpagina: "https://replicate.delivery/czjl/tvs5M1W8zG4rGRyUejXiRjqUccTPEgG591t3Y8HKoOHvNvjLA/output.png",
     kleur: "#E30613",
   },
   {
@@ -36,25 +36,25 @@ const kranten = [
   {
     naam: "de Volkskrant",
     url: "https://www.volkskrant.nl/",
-    voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png",
+    voorpagina: "https://replicate.delivery/czjl/yxYAMyZAb6YFHxfrNDfNkJBoWnHLMgNAe52ZHuee1zpwem3xF/output.png",
     kleur: "#CC0000",
   },
   {
     naam: "Algemeen Dagblad",
     url: "https://www.ad.nl/",
-    voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png",
+    voorpagina: "https://replicate.delivery/czjl/NdWwrLyouf0gekwylDZVTRgCwWKxwU5sCgLV4RffptBwv5dcB/output.png",
     kleur: "#E2001A",
   },
   {
     naam: "Het Parool",
     url: "https://www.parool.nl/",
-    voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png",
+    voorpagina: "https://replicate.delivery/czjl/QKFxKqfX9lwjAinUVbN3zEexF9Ef8ZstR6Zh73yxWBzF48OuA/output.png",
     kleur: "#1A1A1A",
   },
   {
     naam: "Trouw",
     url: "https://www.trouw.nl/",
-    voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png",
+    voorpagina: "https://replicate.delivery/czjl/9CPPsChT2AIvJhBP5efevMeltm8vfBbffUzlZGnkRf7OOceOuA/output.png",
     kleur: "#E87722",
   },
   {
@@ -66,7 +66,7 @@ const kranten = [
   {
     naam: "Reformatorisch Dagblad",
     url: "https://www.rd.nl/",
-    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260827.jpg`,
+    voorpagina: `https://replicate.delivery/czjl/BP1w6gpyxvIGAFhh0XezAufOJZJEY5MxOQPGHP4We6hc38OuA/output.png`,
     kleur: "#2E5E2E",
   },
 ];
