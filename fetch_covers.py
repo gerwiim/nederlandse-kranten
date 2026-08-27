@@ -11,34 +11,17 @@ datum_compact = f"{yyyy}{mm}{dd}"  # bv. 20260827
 # ─── De Telegraaf ────────────────────────────────────────────────────────────
 
 def get_telegraaf_url():
-    api = "https://mhu-tlg-production-backend-api.twipecloud.net/api/data/KiosquePublications/TWPMHUTLG?format=json"
+    api = "https://mhu-tlg-production-backend-api.twipecloud.net/Data/DataService.svc/getcontentpackagelist/TWPMHUTLG/0/30"
     try:
         r = requests.get(api, timeout=10)
         data = r.json()
-
-        # De echte krant heeft een PublicationName in het formaat "DD-MM-YYYY"
-        datum_patroon = re.compile(r"^\d{2}-\d{2}-\d{4}$")
-
-        beste = None  # (ContentPackageId, ThumbnailPublicationPageId, naam)
-
-        for kiosque in data["KiosquePublications"]:
-            package_id = kiosque["ContentPackageId"]
-            for pub in kiosque.get("Publications", []):
-                naam = pub.get("PublicationName", "")
-                if datum_patroon.match(naam):
-                    # Bewaar de editie met de hoogste ContentPackageId
-                    if beste is None or package_id > beste[0]:
-                        beste = (package_id, pub["ThumbnailPublicationPageId"], naam)
-
-        if beste:
-            package_id, thumbnail_id, naam = beste
-            url = f"https://mhu-tlg-webreader-production.twipemobile.com/data/{package_id}/covers/Preview-MEDIUM-{thumbnail_id}.jpg"
-            print(f"Telegraaf gevonden: {naam} (package {package_id}) → {url}")
-            return url
-
-        print("Telegraaf: geen editie met datumnaam gevonden")
-        return None
-
+        editie       = data[0]
+        package_id   = editie["ContentPackageId"]
+        thumbnail_id = editie["ThumbnailId"]
+        pub_date     = editie["PublicationDate"][:10]
+        url = f"https://mhu-tlg-webreader-production.twipemobile.com/data/{package_id}/covers/Preview-MEDIUM-{thumbnail_id}.jpg"
+        print(f"Telegraaf gevonden: {pub_date} (package {package_id}) → {url}")
+        return url
     except Exception as e:
         print(f"Telegraaf fout: {e}")
         return None
