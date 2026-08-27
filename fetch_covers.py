@@ -6,7 +6,6 @@ now = datetime.now()
 yyyy = now.strftime("%Y")
 mm   = now.strftime("%m")
 dd   = now.strftime("%d")
-datum_compact = f"{yyyy}{mm}{dd}"  # bv. 20260827
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -33,11 +32,10 @@ def get_telegraaf_url():
 # ─── NRC ─────────────────────────────────────────────────────────────────────
 
 def get_nrc_hash():
-    api = f"https://www.nrc.nl/de/data/NH/{datum_compact}/"
+    api = f"https://www.nrc.nl/de/data/NH/{yyyy}/{mm}/{dd}/"
     try:
         r = requests.get(api, headers=HEADERS, timeout=10)
         print(f"NRC status: {r.status_code}")
-        print(f"NRC response (eerste 200 tekens): {r.text[:200]}")
         data = r.json()
         page = data["pages"][0]
         url = page["fullscreen_url_orig"]
