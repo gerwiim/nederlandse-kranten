@@ -23,14 +23,14 @@ def upscale(image_url, label=""):
         return image_url
     try:
         print(f"  Upscaling {label}...")
-        # Start de upscale job
         r = requests.post(
-            "https://api.replicate.com/v1/models/nightmareai/real-esrgan/predictions",
+            "https://api.replicate.com/v1/predictions",
             headers={
                 "Authorization": f"Token {REPLICATE_TOKEN}",
                 "Content-Type": "application/json",
             },
             json={
+                "version": "f121d640bd286e1fdc67f9799164c1d5be36ff74576ee11c803ae5b665dd46aa",
                 "input": {
                     "image": image_url,
                     "scale": 2,
@@ -39,8 +39,14 @@ def upscale(image_url, label=""):
             },
             timeout=30,
         )
-        prediction = r.json()
-        prediction_id = prediction["id"]
+        response_data = r.json()
+        print(f"  Replicate response: {response_data}")
+
+        if "id" not in response_data:
+            print(f"  Geen 'id' in response, upscaling overgeslagen voor {label}")
+            return image_url
+
+        prediction_id = response_data["id"]
         print(f"  Job gestart: {prediction_id}")
 
         # Wacht op resultaat (max 120 seconden)
@@ -92,7 +98,7 @@ def get_telegraaf_url():
 
 # ─── NRC ─────────────────────────────────────────────────────────────────────
 
-def get_nrc_hash():
+def get_nrc_url():
     api = f"https://www.nrc.nl/de/data/NH/{yyyy}/{mm}/{dd}/"
     try:
         r = requests.get(api, headers=HEADERS, timeout=10)
@@ -100,17 +106,11 @@ def get_nrc_hash():
         data = r.json()
         page = data["pages"][0]
         url = page["fullscreen_url_orig"]
-        match = re.search(r'101-full-([a-f0-9]+)\.jpg', url)
-        if match:
-            hash_waarde = match.group(1)
-            print(f"NRC hash gevonden: {hash_waarde}")
-            upscaled = upscale(url, "NRC")
-            return hash_waarde, upscaled
-        print(f"NRC: hash niet gevonden in URL: {url}")
-        return None, None
+        print(f"NRC URL gevonden: {url}")
+        return upscale(url, "NRC")
     except Exception as e:
         print(f"NRC fout: {e}")
-        return None, None
+        return None
 
 
 # ─── Reformatorisch Dagblad ───────────────────────────────────────────────────
@@ -148,14 +148,14 @@ def update_appjs(updates):
     with open("app.js", "r", encoding="utf-8") as f:
         content = f.read()
 
-    for zoek, vervang in updates:
+    for label, zoek, vervang in updates:
         if vervang:
-            new_content = re.sub(zoek, vervang, content)
+            new_content = re.sub(zoek, vervang, content, flags=re.DOTALL)
             if new_content != content:
                 content = new_content
-                print(f"  Bijgewerkt: {zoek[:60]}...")
+                print(f"  ✓ Bijgewerkt: {label}")
             else:
-                print(f"  Geen match gevonden voor: {zoek[:60]}...")
+                print(f"  ✗ Geen match gevonden voor: {label}")
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(content)
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     print(f"Datum: {yyyy}-{mm}-{dd}")
 
     telegraaf_url = get_telegraaf_url()
-    nrc_hash, nrc_url = get_nrc_hash()
+    nrc_url       = get_nrc_url()
     rd_url        = get_rd_url()
     vk_url        = get_dpg_url("vk", "Volkskrant")
     ad_url        = get_dpg_url("ad/ad", "Algemeen Dagblad")
@@ -177,46 +177,52 @@ if __name__ == "__main__":
     trouw_url     = get_dpg_url("tr", "Trouw")
     nd_url        = get_nd_url()
 
+    # Regex matcht zowel "..." als `...` als voorpagina waarde
+    def vervang_url(naam, nieuwe_url):
+        if not nieuwe_url:
+            return None
+        return rf'\g<1>{nieuwe_url}\g<2>'
+
     updates = [
-        # Telegraaf
         (
-            r'(naam: "De Telegraaf"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{telegraaf_url}\2' if telegraaf_url else None,
+            "Telegraaf",
+            r'(naam: "De Telegraaf".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Telegraaf", telegraaf_url),
         ),
-        # NRC (volledige URL vervangen)
         (
-            r'(naam: "NRC"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{nrc_url}\2' if nrc_url else None,
+            "NRC",
+            r'(naam: "NRC".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("NRC", nrc_url),
         ),
-        # RD
         (
-            r'(naam: "Reformatorisch Dagblad"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{rd_url}\2' if rd_url else None,
+            "Reformatorisch Dagblad",
+            r'(naam: "Reformatorisch Dagblad".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Reformatorisch Dagblad", rd_url),
         ),
-        # Volkskrant
         (
-            r'(naam: "de Volkskrant"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{vk_url}\2' if vk_url else None,
+            "Volkskrant",
+            r'(naam: "de Volkskrant".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Volkskrant", vk_url),
         ),
-        # AD
         (
-            r'(naam: "Algemeen Dagblad"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{ad_url}\2' if ad_url else None,
+            "Algemeen Dagblad",
+            r'(naam: "Algemeen Dagblad".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Algemeen Dagblad", ad_url),
         ),
-        # Parool
         (
-            r'(naam: "Het Parool"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{parool_url}\2' if parool_url else None,
+            "Het Parool",
+            r'(naam: "Het Parool".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Het Parool", parool_url),
         ),
-        # Trouw
         (
-            r'(naam: "Trouw"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{trouw_url}\2' if trouw_url else None,
+            "Trouw",
+            r'(naam: "Trouw".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Trouw", trouw_url),
         ),
-        # Nederlands Dagblad
         (
-            r'(naam: "Nederlands Dagblad"[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{nd_url}\2' if nd_url else None,
+            "Nederlands Dagblad",
+            r'(naam: "Nederlands Dagblad".*?voorpagina: ["`])[^"`]*(["`])',
+            vervang_url("Nederlands Dagblad", nd_url),
         ),
     ]
 
