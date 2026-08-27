@@ -11,12 +11,12 @@ jobs:
 
     steps:
       - name: Haal code op
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Installeer Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Installeer dependencies
         run: pip install requests
