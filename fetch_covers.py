@@ -28,38 +28,54 @@ def get_telegraaf_url():
 
 # ─── NRC ─────────────────────────────────────────────────────────────────────
 
-def get_nrc_url():
+def get_nrc_hash():
     api = f"https://www.nrc.nl/de/data/NH/{datum_compact}/"
     try:
         r = requests.get(api, timeout=10)
         data = r.json()
         page = data["pages"][0]
+        # Haal de hash op uit de URL, bv. "101-full-b4ba3b.jpg" → "b4ba3b"
         url = page["fullscreen_url_orig"]
-        print(f"NRC gevonden: {url}")
-        return url
+        match = re.search(r'101-full-([a-f0-9]+)\.jpg', url)
+        if match:
+            hash_waarde = match.group(1)
+            print(f"NRC hash gevonden: {hash_waarde}")
+            return hash_waarde
+        print(f"NRC: hash niet gevonden in URL: {url}")
+        return None
     except Exception as e:
         print(f"NRC fout: {e}")
         return None
 
 # ─── app.js bijwerken ─────────────────────────────────────────────────────────
 
-def update_appjs(telegraaf_url, nrc_url):
+def update_appjs(telegraaf_url, nrc_hash):
     with open("app.js", "r", encoding="utf-8") as f:
         content = f.read()
 
+    # Telegraaf: vervang de volledige URL tussen aanhalingstekens
     if telegraaf_url:
         content = re.sub(
-            r'(naam: "De Telegraaf",[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{telegraaf_url}\2',
+            r'(voorpagina:\s*"https://mhu-tlg-webreader-production\.twipemobile\.com/data/)[^"]*(")',
+            rf'\g<1>{telegraaf_url.split("/data/")[1]}\2',
             content
         )
-
-    if nrc_url:
+        # Eenvoudiger: vervang gewoon de hele URL direct
         content = re.sub(
-            r'(naam: "NRC",[^}]*voorpagina: ")[^"]*(")',
-            rf'\g<1>{nrc_url}\2',
+            r'"https://mhu-tlg-webreader-production\.twipemobile\.com/data/[^"]*"',
+            f'"{telegraaf_url}"',
             content
         )
+        print(f"Telegraaf URL bijgewerkt.")
+
+    # NRC: alleen de hash vervangen in de template literal
+    if nrc_hash:
+        content = re.sub(
+            r'(101-full-)[a-f0-9]+(\.jpg)',
+            rf'\g<1>{nrc_hash}\2',
+            content
+        )
+        print(f"NRC hash bijgewerkt naar: {nrc_hash}")
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(content)
@@ -71,6 +87,6 @@ def update_appjs(telegraaf_url, nrc_url):
 if __name__ == "__main__":
     print(f"Datum: {yyyy}-{mm}-{dd}")
     telegraaf_url = get_telegraaf_url()
-    nrc_url       = get_nrc_url()
-    update_appjs(telegraaf_url, nrc_url)
+    nrc_hash      = get_nrc_hash()
+    update_appjs(telegraaf_url, nrc_hash)
     print("Klaar!")
