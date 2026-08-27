@@ -144,18 +144,32 @@ def get_nd_url():
 
 # ─── app.js bijwerken ─────────────────────────────────────────────────────────
 
-def update_appjs(updates):
+def vervang_voorpagina(content, oude_url, nieuwe_url, label):
+    """Vervangt een specifieke URL in app.js, ongeacht aanhalingstekens of backticks."""
+    escaped = re.escape(oude_url)
+    new_content = re.sub(escaped, nieuwe_url, content)
+    if new_content != content:
+        print(f"  ✓ Bijgewerkt: {label}")
+    else:
+        print(f"  ✗ Geen match gevonden voor: {label} ({oude_url[:60]}...)")
+    return new_content
+
+def get_huidige_urls(content):
+    """Leest de huidige voorpagina URLs uit app.js."""
+    patroon = r'voorpagina:\s*["`]([^"`]+)["`]'
+    return re.findall(patroon, content)
+
+def update_appjs(url_map):
     with open("app.js", "r", encoding="utf-8") as f:
         content = f.read()
 
-    for label, zoek, vervang in updates:
-        if vervang:
-            new_content = re.sub(zoek, vervang, content, flags=re.DOTALL)
-            if new_content != content:
-                content = new_content
-                print(f"  ✓ Bijgewerkt: {label}")
-            else:
-                print(f"  ✗ Geen match gevonden voor: {label}")
+    print("Huidige URLs in app.js:")
+    for url in get_huidige_urls(content):
+        print(f"  {url}")
+
+    for label, oude_url, nieuwe_url in url_map:
+        if nieuwe_url and oude_url:
+            content = vervang_voorpagina(content, oude_url, nieuwe_url, label)
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(content)
@@ -163,11 +177,40 @@ def update_appjs(updates):
     print("app.js bijgewerkt.")
 
 
+# ─── Huidige URLs uitlezen uit app.js ────────────────────────────────────────
+
+def lees_huidige_url(content, naam):
+    """Zoekt de voorpagina URL voor een specifieke krant op naam."""
+    patroon = rf'naam:\s*"{re.escape(naam)}".*?voorpagina:\s*["`]([^"`]+)["`]'
+    match = re.search(patroon, content, re.DOTALL)
+    if match:
+        return match.group(1)
+    return None
+
+
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     print(f"Datum: {yyyy}-{mm}-{dd}")
 
+    # Lees huidige URLs uit app.js
+    with open("app.js", "r", encoding="utf-8") as f:
+        appjs = f.read()
+
+    huidige_telegraaf = lees_huidige_url(appjs, "De Telegraaf")
+    huidige_nrc       = lees_huidige_url(appjs, "NRC")
+    huidige_rd        = lees_huidige_url(appjs, "Reformatorisch Dagblad")
+    huidige_vk        = lees_huidige_url(appjs, "de Volkskrant")
+    huidige_ad        = lees_huidige_url(appjs, "Algemeen Dagblad")
+    huidige_parool    = lees_huidige_url(appjs, "Het Parool")
+    huidige_trouw     = lees_huidige_url(appjs, "Trouw")
+    huidige_nd        = lees_huidige_url(appjs, "Nederlands Dagblad")
+
+    print(f"Huidige Telegraaf URL: {huidige_telegraaf}")
+    print(f"Huidige NRC URL: {huidige_nrc}")
+    print(f"Huidige RD URL: {huidige_rd}")
+
+    # Haal nieuwe URLs op en upscale
     telegraaf_url = get_telegraaf_url()
     nrc_url       = get_nrc_url()
     rd_url        = get_rd_url()
@@ -177,54 +220,16 @@ if __name__ == "__main__":
     trouw_url     = get_dpg_url("tr", "Trouw")
     nd_url        = get_nd_url()
 
-    # Regex matcht zowel "..." als `...` als voorpagina waarde
-    def vervang_url(naam, nieuwe_url):
-        if not nieuwe_url:
-            return None
-        return rf'\g<1>{nieuwe_url}\g<2>'
-
-    updates = [
-        (
-            "Telegraaf",
-            r'(naam: "De Telegraaf".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Telegraaf", telegraaf_url),
-        ),
-        (
-            "NRC",
-            r'(naam: "NRC".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("NRC", nrc_url),
-        ),
-        (
-            "Reformatorisch Dagblad",
-            r'(naam: "Reformatorisch Dagblad".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Reformatorisch Dagblad", rd_url),
-        ),
-        (
-            "Volkskrant",
-            r'(naam: "de Volkskrant".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Volkskrant", vk_url),
-        ),
-        (
-            "Algemeen Dagblad",
-            r'(naam: "Algemeen Dagblad".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Algemeen Dagblad", ad_url),
-        ),
-        (
-            "Het Parool",
-            r'(naam: "Het Parool".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Het Parool", parool_url),
-        ),
-        (
-            "Trouw",
-            r'(naam: "Trouw".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Trouw", trouw_url),
-        ),
-        (
-            "Nederlands Dagblad",
-            r'(naam: "Nederlands Dagblad".*?voorpagina: ["`])[^"`]*(["`])',
-            vervang_url("Nederlands Dagblad", nd_url),
-        ),
+    url_map = [
+        ("Telegraaf",            huidige_telegraaf, telegraaf_url),
+        ("NRC",                  huidige_nrc,       nrc_url),
+        ("Reformatorisch Dagblad", huidige_rd,      rd_url),
+        ("Volkskrant",           huidige_vk,        vk_url),
+        ("Algemeen Dagblad",     huidige_ad,        ad_url),
+        ("Het Parool",           huidige_parool,    parool_url),
+        ("Trouw",                huidige_trouw,     trouw_url),
+        ("Nederlands Dagblad",   huidige_nd,        nd_url),
     ]
 
-    update_appjs(updates)
+    update_appjs(url_map)
     print("Klaar!")
