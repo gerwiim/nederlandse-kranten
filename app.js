@@ -1,4 +1,4 @@
-const { useState } = React;
+const { useState, useEffect } = React;
 
 // Datum helpers
 const now = new Date();
@@ -10,7 +10,7 @@ const datumCompact = `${yyyy}${mm}${dd}`;
 // RD verschijnt niet op zondag → gebruik dan zaterdag
 function getRdDatum() {
   const d = new Date();
-  if (d.getDay() === 0) { // 0 = zondag
+  if (d.getDay() === 0) {
     d.setDate(d.getDate() - 1);
   }
   const y = d.getFullYear();
@@ -72,7 +72,23 @@ const kranten = [
 ];
 
 function App() {
-  const [geselecteerd, setGeselecteerd] = useState(null);
+  const [index, setIndex] = useState(null);
+
+  const geselecteerd = index !== null ? kranten[index] : null;
+
+  const vorigeKrant = () => setIndex((index - 1 + kranten.length) % kranten.length);
+  const volgendeKrant = () => setIndex((index + 1) % kranten.length);
+
+  useEffect(() => {
+    if (index === null) return;
+    const handler = (e) => {
+      if (e.key === "ArrowLeft") vorigeKrant();
+      if (e.key === "ArrowRight") volgendeKrant();
+      if (e.key === "Escape") setIndex(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [index]);
 
   const today = now.toLocaleDateString("nl-NL", {
     weekday: "long",
@@ -80,6 +96,22 @@ function App() {
     month: "long",
     day: "numeric",
   });
+
+  const pijlStijl = {
+    background: "rgba(255,255,255,0.15)",
+    border: "none",
+    color: "white",
+    fontSize: "1.8rem",
+    cursor: "pointer",
+    borderRadius: "50%",
+    width: "48px",
+    height: "48px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    transition: "background 0.15s",
+  };
 
   return (
     <div style={{ fontFamily: "Georgia, serif", background: "#f4f1ec", minHeight: "100vh", paddingBottom: "48px" }}>
@@ -96,10 +128,10 @@ function App() {
         gap: "24px",
         padding: "0 32px",
       }}>
-        {kranten.map((krant) => (
+        {kranten.map((krant, i) => (
           <div
             key={krant.naam}
-            onClick={() => setGeselecteerd(krant)}
+            onClick={() => setIndex(i)}
             style={{
               background: "white",
               borderRadius: "10px",
@@ -158,14 +190,24 @@ function App() {
 
       {geselecteerd && (
         <div
-          onClick={() => setGeselecteerd(null)}
+          onClick={() => setIndex(null)}
           style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
             background: "rgba(0,0,0,0.88)",
             display: "flex", alignItems: "center", justifyContent: "center",
             zIndex: 1000, padding: "20px",
+            gap: "16px",
           }}
         >
+          {/* Pijl links */}
+          <button
+            onClick={e => { e.stopPropagation(); vorigeKrant(); }}
+            style={pijlStijl}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.30)"}
+            onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
+          >‹</button>
+
+          {/* Krantvenster */}
           <div
             onClick={e => e.stopPropagation()}
             style={{
@@ -187,9 +229,11 @@ function App() {
               alignItems: "center",
               flexShrink: 0,
             }}>
-              <span style={{ color: "white", fontWeight: "bold", fontSize: "1.1rem" }}>{geselecteerd.naam}</span>
+              <span style={{ color: "white", fontWeight: "bold", fontSize: "1.1rem" }}>
+                {index + 1}/{kranten.length} — {geselecteerd.naam}
+              </span>
               <button
-                onClick={() => setGeselecteerd(null)}
+                onClick={() => setIndex(null)}
                 style={{ background: "none", border: "none", color: "white", fontSize: "1.4rem", cursor: "pointer", lineHeight: 1 }}
               >✕</button>
             </div>
@@ -217,6 +261,14 @@ function App() {
               </a>
             </div>
           </div>
+
+          {/* Pijl rechts */}
+          <button
+            onClick={e => { e.stopPropagation(); volgendeKrant(); }}
+            style={pijlStijl}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.30)"}
+            onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
+          >›</button>
         </div>
       )}
     </div>
