@@ -23,8 +23,6 @@ jobs:
 
       - name: Voer update script uit
         run: python fetch_covers.py
-        env:
-          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
 
       - name: Sla wijzigingen op in GitHub
         run: |
