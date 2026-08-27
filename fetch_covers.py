@@ -16,19 +16,25 @@ def get_telegraaf_url():
         r = requests.get(api, timeout=10)
         data = r.json()
 
-        # Zoek door alle KiosquePublications en hun Publications
         # De echte krant heeft een PublicationName in het formaat "DD-MM-YYYY"
         datum_patroon = re.compile(r"^\d{2}-\d{2}-\d{4}$")
 
+        beste = None  # (ContentPackageId, ThumbnailPublicationPageId, naam)
+
         for kiosque in data["KiosquePublications"]:
+            package_id = kiosque["ContentPackageId"]
             for pub in kiosque.get("Publications", []):
                 naam = pub.get("PublicationName", "")
                 if datum_patroon.match(naam):
-                    package_id   = kiosque["ContentPackageId"]
-                    thumbnail_id = pub["ThumbnailPublicationPageId"]
-                    url = f"https://mhu-tlg-webreader-production.twipemobile.com/data/{package_id}/covers/Preview-MEDIUM-{thumbnail_id}.jpg"
-                    print(f"Telegraaf gevonden: {naam} → {url}")
-                    return url
+                    # Bewaar de editie met de hoogste ContentPackageId
+                    if beste is None or package_id > beste[0]:
+                        beste = (package_id, pub["ThumbnailPublicationPageId"], naam)
+
+        if beste:
+            package_id, thumbnail_id, naam = beste
+            url = f"https://mhu-tlg-webreader-production.twipemobile.com/data/{package_id}/covers/Preview-MEDIUM-{thumbnail_id}.jpg"
+            print(f"Telegraaf gevonden: {naam} (package {package_id}) → {url}")
+            return url
 
         print("Telegraaf: geen editie met datumnaam gevonden")
         return None
