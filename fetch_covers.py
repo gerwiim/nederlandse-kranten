@@ -1,5 +1,4 @@
 import requests
-import json
 import re
 from datetime import datetime
 
@@ -16,10 +15,24 @@ def get_telegraaf_url():
     try:
         r = requests.get(api, timeout=10)
         data = r.json()
-        pub = data["KiosquePublications"][0]
-        package_id   = pub["ContentPackageId"]
-        thumbnail_id = pub["Publications"][0]["ThumbnailPublicationPageId"]
-        return f"https://mhu-tlg-webreader-production.twipemobile.com/data/{package_id}/covers/Preview-MEDIUM-{thumbnail_id}.jpg"
+
+        # Zoek door alle KiosquePublications en hun Publications
+        # De echte krant heeft een PublicationName in het formaat "DD-MM-YYYY"
+        datum_patroon = re.compile(r"^\d{2}-\d{2}-\d{4}$")
+
+        for kiosque in data["KiosquePublications"]:
+            for pub in kiosque.get("Publications", []):
+                naam = pub.get("PublicationName", "")
+                if datum_patroon.match(naam):
+                    package_id   = kiosque["ContentPackageId"]
+                    thumbnail_id = pub["ThumbnailPublicationPageId"]
+                    url = f"https://mhu-tlg-webreader-production.twipemobile.com/data/{package_id}/covers/Preview-MEDIUM-{thumbnail_id}.jpg"
+                    print(f"Telegraaf gevonden: {naam} → {url}")
+                    return url
+
+        print("Telegraaf: geen editie met datumnaam gevonden")
+        return None
+
     except Exception as e:
         print(f"Telegraaf fout: {e}")
         return None
@@ -31,9 +44,10 @@ def get_nrc_url():
     try:
         r = requests.get(api, timeout=10)
         data = r.json()
-        # Pagina 0 = voorpagina (pagina 101)
         page = data["pages"][0]
-        return page["fullscreen_url_orig"]
+        url = page["fullscreen_url_orig"]
+        print(f"NRC gevonden: {url}")
+        return url
     except Exception as e:
         print(f"NRC fout: {e}")
         return None
@@ -50,7 +64,6 @@ def update_appjs(telegraaf_url, nrc_url):
             rf'\g<1>{telegraaf_url}\2',
             content
         )
-        print(f"Telegraaf URL bijgewerkt: {telegraaf_url}")
 
     if nrc_url:
         content = re.sub(
@@ -58,10 +71,11 @@ def update_appjs(telegraaf_url, nrc_url):
             rf'\g<1>{nrc_url}\2',
             content
         )
-        print(f"NRC URL bijgewerkt: {nrc_url}")
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(content)
+
+    print("app.js bijgewerkt.")
 
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
 
