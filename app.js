@@ -7,6 +7,19 @@ const mm = String(now.getMonth() + 1).padStart(2, "0");
 const dd = String(now.getDate()).padStart(2, "0");
 const datumCompact = `${yyyy}${mm}${dd}`;
 
+// RD verschijnt niet op zondag → gebruik dan zaterdag
+function getRdDatum() {
+  const d = new Date();
+  if (d.getDay() === 0) { // 0 = zondag
+    d.setDate(d.getDate() - 1);
+  }
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dag = String(d.getDate()).padStart(2, "0");
+  return `${y}${m}${dag}`;
+}
+const rdDatum = getRdDatum();
+
 const kranten = [
   {
     naam: "De Telegraaf",
@@ -53,7 +66,7 @@ const kranten = [
   {
     naam: "Reformatorisch Dagblad",
     url: "https://www.rd.nl/",
-    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_${datumCompact}.jpg`,
+    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_${rdDatum}.jpg`,
     kleur: "#2E5E2E",
   },
 ];
