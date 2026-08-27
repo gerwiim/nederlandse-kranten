@@ -2,7 +2,7 @@ name: Dagelijkse update voorpagina's
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # Elke dag om 06:00 Nederlandse tijd (UTC+1)
+    - cron: '0 4 * * *'   # Elke dag om 06:00 zomertijd / 05:00 wintertijd
   workflow_dispatch:        # Knop om handmatig te starten
 
 jobs:
@@ -23,6 +23,8 @@ jobs:
 
       - name: Voer update script uit
         run: python fetch_covers.py
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
 
       - name: Sla wijzigingen op in GitHub
         run: |
