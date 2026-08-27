@@ -11,7 +11,7 @@ const kranten = [
   {
     naam: "De Telegraaf",
     url: "https://www.telegraaf.nl/",
-    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3443/covers/Preview-MEDIUM-271730.jpg",
+    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3436/covers/Preview-MEDIUM-271402.jpg",
     kleur: "#E30613",
   },
   {
