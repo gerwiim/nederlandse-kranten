@@ -72,13 +72,15 @@ def get_vk_url():
 
 def vervang_url_in_appjs(content, naam, nieuwe_url):
     """Vervang de voorpagina-URL voor een krant op basis van de naam in app.js."""
-    patroon = rf'(naam:\s*"{re.escape(naam)}".*?voorpagina:\s*["`])([^"`]+)(["`])'
-    nieuwe_content = re.sub(patroon, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
-    if nieuwe_content != content:
-        print(f"  ✓ Bijgewerkt: {naam}")
-    else:
-        print(f"  ✗ Geen match gevonden voor: {naam}")
-    return nieuwe_content
+    for quote in ['`', '"']:
+        q = re.escape(quote)
+        patroon = rf'(naam:\s*"{re.escape(naam)}"[^{{}}]*?voorpagina:\s*{q})([^{q}]+)({q})'
+        nieuwe_content = re.sub(patroon, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
+        if nieuwe_content != content:
+            print(f"  ✓ Bijgewerkt: {naam}")
+            return nieuwe_content
+    print(f"  ✗ Geen match gevonden voor: {naam}")
+    return content
 
 
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
