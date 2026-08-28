@@ -73,15 +73,18 @@ def get_vk_url():
 def vervang_url_in_appjs(content, naam, nieuwe_url):
     """Vervang de voorpagina-URL voor een krant op basis van de naam in app.js."""
 
+    # Escape alleen echte regex-tekens, niet de spatie
+    naam_escaped = re.sub(r'([\.\+\*\?\^\$\{\}\[\]\|\(\)])', r'\\\1', naam)
+
     # Probeer backtick-variant
-    patroon_backtick = r'(naam:\s*"' + re.escape(naam) + r'"[^}]*?voorpagina:\s*`)([^`]+)(`)'
+    patroon_backtick = r'(naam:\s*"' + naam_escaped + r'"[^}]*?voorpagina:\s*`)([^`]+)(`)'
     nieuwe_content = re.sub(patroon_backtick, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
     if nieuwe_content != content:
         print(f"  ✓ Bijgewerkt: {naam}")
         return nieuwe_content
 
     # Probeer aanhalingsteken-variant
-    patroon_quote = r'(naam:\s*"' + re.escape(naam) + r'"[^}]*?voorpagina:\s*")([^"]+)(")'
+    patroon_quote = r'(naam:\s*"' + naam_escaped + r'"[^}]*?voorpagina:\s*")([^"]+)(")'
     nieuwe_content = re.sub(patroon_quote, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
     if nieuwe_content != content:
         print(f"  ✓ Bijgewerkt: {naam}")
