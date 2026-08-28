@@ -28,16 +28,6 @@ def get_nd_url():
         print(f"ND fout: {e}")
         return None
 
-def get_rd_url():
-    d = date.today()
-    if d.weekday() == 6:  # zondag
-        d = date.fromordinal(d.toordinal() - 1)
-    datum = d.strftime("%Y%m%d")
-    return f"https://cdn.erdee.nl/epaper/_fpage/RDB/{d.year}/RDB_RDB_{datum}.jpg"
-
-def get_parool_url():
-    return "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png"
-
 def get_nrc_url():
     api = f"https://www.nrc.nl/de/data/NH/{yyyy}/{mm}/{dd}/"
     try:
@@ -47,6 +37,16 @@ def get_nrc_url():
     except Exception as e:
         print(f"NRC fout: {e}")
         return None
+
+def get_parool_url():
+    return "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png"
+
+def get_rd_url():
+    d = date.today()
+    if d.weekday() == 6:  # zondag
+        d = date.fromordinal(d.toordinal() - 1)
+    datum = d.strftime("%Y%m%d")
+    return f"https://cdn.erdee.nl/epaper/_fpage/RDB/{d.year}/RDB_RDB_{datum}.jpg"
 
 def get_telegraaf_url():
     api = "https://mhu-tlg-production-backend-api.twipecloud.net/Data/DataService.svc/getcontentpackagelist/TWPMHUTLG/0/30"
@@ -68,30 +68,45 @@ def get_vk_url():
     return "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png"
 
 
-# ─── app.js bijwerken ─────────────────────────────────────────────────────────
+# ─── Hulpfuncties ─────────────────────────────────────────────────────────────
 
-def vervang_url_in_appjs(content, naam, nieuwe_url):
-    """Vervang de voorpagina-URL voor een krant op basis van de naam in app.js."""
+def maak_regel(quote, url):
+    return f"voorpagina: {quote}{url}{quote}"
 
-    # Escape alleen echte regex-tekens, niet de spatie
-    naam_escaped = re.sub(r'([\.\+\*\?\^\$\{\}\[\]\|\(\)])', r'\\\1', naam)
+def vind_huidige_url(content, naam, quote):
+    """Zoek de huidige voorpagina-URL voor een specifieke krant."""
+    q = re.escape(quote)
+    # Zoek de naam, dan de eerstvolgende voorpagina-regel met het juiste quote-teken
+    patroon = r'naam:\s*"' + re.sub(r'([\.\+\*\?\^\$\{\}\[\]\|\(\)])', r'\\\1', naam) + r'".*?voorpagina:\s*' + q + r'([^' + q + r']+)' + q
+    match = re.search(patroon, content, flags=re.DOTALL)
+    if match:
+        return match.group(1)
+    return None
 
-    # Probeer backtick-variant
-    patroon_backtick = r'(naam:\s*"' + naam_escaped + r'"[^}]*?voorpagina:\s*`)([^`]+)(`)'
-    nieuwe_content = re.sub(patroon_backtick, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
-    if nieuwe_content != content:
+def vervang_url(content, naam, quote, huidig, nieuwe_url):
+    """Vervang de voorpagina-URL via str.replace."""
+    oude_regel = maak_regel(quote, huidig)
+    nieuwe_regel = maak_regel(quote, nieuwe_url)
+    if oude_regel in content:
+        content = content.replace(oude_regel, nieuwe_regel)
         print(f"  ✓ Bijgewerkt: {naam}")
-        return nieuwe_content
-
-    # Probeer aanhalingsteken-variant
-    patroon_quote = r'(naam:\s*"' + naam_escaped + r'"[^}]*?voorpagina:\s*")([^"]+)(")'
-    nieuwe_content = re.sub(patroon_quote, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
-    if nieuwe_content != content:
-        print(f"  ✓ Bijgewerkt: {naam}")
-        return nieuwe_content
-
-    print(f"  ✗ Geen match gevonden voor: {naam}")
+    else:
+        print(f"  ✗ Niet gevonden: {naam}")
     return content
+
+
+# ─── Krantenlijst ─────────────────────────────────────────────────────────────
+
+KRANTEN = [
+    {"naam": "Algemeen Dagblad",       "quote": '"',  "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png", "nieuw": get_ad_url},
+    {"naam": "Nederlands Dagblad",     "quote": '"',  "huidig": None, "nieuw": get_nd_url},
+    {"naam": "NRC",                    "quote": "`",  "huidig": None, "nieuw": get_nrc_url},
+    {"naam": "Het Parool",             "quote": '"',  "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png", "nieuw": get_parool_url},
+    {"naam": "Reformatorisch Dagblad", "quote": "`",  "huidig": None, "nieuw": get_rd_url},
+    {"naam": "De Telegraaf",           "quote": '"',  "huidig": None, "nieuw": get_telegraaf_url},
+    {"naam": "Trouw",                  "quote": '"',  "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png", "nieuw": get_trouw_url},
+    {"naam": "de Volkskrant",          "quote": '"',  "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png", "nieuw": get_vk_url},
+]
 
 
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
@@ -102,20 +117,21 @@ if __name__ == "__main__":
     with open("app.js", "r", encoding="utf-8") as f:
         appjs = f.read()
 
-    updates = [
-        ("Algemeen Dagblad",       get_ad_url()),
-        ("Nederlands Dagblad",     get_nd_url()),
-        ("NRC",                    get_nrc_url()),
-        ("Het Parool",             get_parool_url()),
-        ("Reformatorisch Dagblad", get_rd_url()),
-        ("De Telegraaf",           get_telegraaf_url()),
-        ("Trouw",                  get_trouw_url()),
-        ("de Volkskrant",          get_vk_url()),
-    ]
+    for krant in KRANTEN:
+        nieuwe_url = krant["nieuw"]()
+        if not nieuwe_url:
+            print(f"  – Overgeslagen: {krant['naam']} (geen URL opgehaald)")
+            continue
 
-    for naam, url in updates:
-        if url:
-            appjs = vervang_url_in_appjs(appjs, naam, url)
+        huidig = krant["huidig"]
+        if huidig is None:
+            huidig = vind_huidige_url(appjs, krant["naam"], krant["quote"])
+
+        if huidig is None:
+            print(f"  ✗ Huidige URL niet gevonden in app.js: {krant['naam']}")
+            continue
+
+        appjs = vervang_url(appjs, krant["naam"], krant["quote"], huidig, nieuwe_url)
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(appjs)
