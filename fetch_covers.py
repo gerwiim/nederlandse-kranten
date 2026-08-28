@@ -72,13 +72,21 @@ def get_vk_url():
 
 def vervang_url_in_appjs(content, naam, nieuwe_url):
     """Vervang de voorpagina-URL voor een krant op basis van de naam in app.js."""
-    for quote in ['`', '"']:
-        q = re.escape(quote)
-        patroon = rf'(naam:\s*"{re.escape(naam)}"[^{{}}]*?voorpagina:\s*{q})([^{q}]+)({q})'
-        nieuwe_content = re.sub(patroon, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
-        if nieuwe_content != content:
-            print(f"  ✓ Bijgewerkt: {naam}")
-            return nieuwe_content
+
+    # Probeer backtick-variant
+    patroon_backtick = r'(naam:\s*"' + re.escape(naam) + r'"[^}]*?voorpagina:\s*`)([^`]+)(`)'
+    nieuwe_content = re.sub(patroon_backtick, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
+    if nieuwe_content != content:
+        print(f"  ✓ Bijgewerkt: {naam}")
+        return nieuwe_content
+
+    # Probeer aanhalingsteken-variant
+    patroon_quote = r'(naam:\s*"' + re.escape(naam) + r'"[^}]*?voorpagina:\s*")([^"]+)(")'
+    nieuwe_content = re.sub(patroon_quote, lambda m: m.group(1) + nieuwe_url + m.group(3), content, flags=re.DOTALL)
+    if nieuwe_content != content:
+        print(f"  ✓ Bijgewerkt: {naam}")
+        return nieuwe_content
+
     print(f"  ✗ Geen match gevonden voor: {naam}")
     return content
 
@@ -91,7 +99,6 @@ if __name__ == "__main__":
     with open("app.js", "r", encoding="utf-8") as f:
         appjs = f.read()
 
-    # Naam moet exact overeenkomen met naam in app.js
     updates = [
         ("Algemeen Dagblad",       get_ad_url()),
         ("Nederlands Dagblad",     get_nd_url()),
