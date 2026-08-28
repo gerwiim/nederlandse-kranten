@@ -25,3 +25,17 @@ print("9ed0159c in response:", "9ed0159c" in r.text)
 for match in re.finditer(r'.{100}storage\.pubble\.cloud.{100}', r.text):
     print(match.group(0))
     print("---")
+# Probeer de Pubble API
+api_urls = [
+    "https://api.pubble.cloud/v1/publications/nederlandsdagblad/editions/latest",
+    "https://api.pubble.cloud/publications/nederlandsdagblad/editions/latest",
+    "https://api.pubble.cloud/v1/nederlandsdagblad/latest",
+]
+
+for url in api_urls:
+    resp = requests.get(url, headers=HEADERS, cookies=cookies, timeout=10)
+    print(f"{url}")
+    print(f"  Status: {resp.status_code}")
+    if resp.status_code == 200:
+        print(f"  Response: {resp.text[:300]}")
+    print("---")
