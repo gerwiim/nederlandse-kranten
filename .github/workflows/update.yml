@@ -2,7 +2,8 @@ name: Dagelijkse update voorpagina's
 
 on:
   schedule:
-    - cron: '0 4 * * *'   # Elke dag om 06:00 zomertijd / 05:00 wintertijd
+    - cron: '0 4 * * *'   # 06:00 zomertijd — NRC en Telegraaf
+    - cron: '0 9 * * *'   # 11:00 zomertijd — DPG-kranten en RD
   workflow_dispatch:        # Knop om handmatig te starten
 
 jobs:
@@ -29,5 +30,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add app.js
-          git diff --staged --quiet || git commit -m "Automatische update voorpagina's $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "Automatische update voorpagina's $(date +'%Y-%m-%d %H:%M')"
           git push
