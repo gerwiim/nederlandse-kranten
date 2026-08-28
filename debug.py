@@ -21,3 +21,7 @@ print("Status:", r.status_code)
 print("b8fb8a46 in response:", "b8fb8a46" in r.text)
 print("storage.pubble.cloud in response:", "storage.pubble.cloud" in r.text)
 print("9ed0159c in response:", "9ed0159c" in r.text)
+# Zoek alle stukken tekst rondom storage.pubble.cloud
+for match in re.finditer(r'.{100}storage\.pubble\.cloud.{100}', r.text):
+    print(match.group(0))
+    print("---")
