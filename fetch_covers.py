@@ -17,7 +17,16 @@ def get_ad_url():
     return "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png"
 
 def get_nd_url():
-    return "https://storage.pubble.cloud/9ed0159c/paper/559d18b2/files/large/1.jpg"
+    try:
+        r = requests.get("https://www.nd.nl/reader", headers=HEADERS, timeout=10)
+        match = re.search(r'https://storage\.pubble\.cloud/[^"?]+/files/large/1\.jpg', r.text)
+        if match:
+            return match.group(0)
+        print("ND: geen URL gevonden")
+        return None
+    except Exception as e:
+        print(f"ND fout: {e}")
+        return None
 
 def get_rd_url():
     d = date.today()
