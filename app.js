@@ -36,7 +36,7 @@ const kranten = [
   {
     naam: "NRC",
     url: "https://www.nrc.nl/",
-    voorpagina: `https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260829/101-full-a14e67.jpg`,
+    voorpagina: `https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260831/101-full-a4805c.jpg`,
     kleur: "#003082",
   },
   {
@@ -48,13 +48,13 @@ const kranten = [
   {
     naam: "Reformatorisch Dagblad",
     url: "https://www.rd.nl/",
-    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260829.jpg`,
+    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260831.jpg`,
     kleur: "#2E5E2E",
   },
   {
     naam: "De Telegraaf",
     url: "https://www.telegraaf.nl/",
-    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3448/covers/Preview-MEDIUM-272051.jpg",
+    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3452/covers/Preview-MEDIUM-272981.jpg",
     kleur: "#E30613",
   },
   {
