@@ -5,7 +5,6 @@ const now = new Date();
 const yyyy = now.getFullYear();
 const mm = String(now.getMonth() + 1).padStart(2, "0");
 const dd = String(now.getDate()).padStart(2, "0");
-const datumCompact = `${yyyy}${mm}${dd}`;
 
 // RD verschijnt niet op zondag → gebruik dan zaterdag
 function getRdDatum() {
@@ -64,6 +63,31 @@ const kranten = [
     kleur: "#CC0000",
   },
 ];
+
+function KrantAfbeelding({ src, alt, stijl, foutStijl }) {
+  const [fout, setFout] = useState(false);
+
+  useEffect(() => {
+    setFout(false);
+  }, [src]);
+
+  if (fout) {
+    return (
+      <div style={foutStijl}>
+        ⚠️ Voorpagina<br />niet beschikbaar
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      style={stijl}
+      onError={() => setFout(true)}
+    />
+  );
+}
 
 function App() {
   const [index, setIndex] = useState(null);
@@ -155,14 +179,11 @@ function App() {
               justifyContent: "center",
               overflow: "hidden",
             }}>
-              <img
+              <KrantAfbeelding
                 src={krant.voorpagina}
                 alt={`Voorpagina ${krant.naam}`}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                onError={e => {
-                  e.target.style.display = "none";
-                  e.target.parentNode.innerHTML = `<div style="color:#999;text-align:center;padding:20px;font-size:0.9rem">⚠️ Voorpagina<br/>niet beschikbaar</div>`;
-                }}
+                stijl={{ width: "100%", height: "100%", objectFit: "cover" }}
+                foutStijl={{ color: "#999", textAlign: "center", padding: "20px", fontSize: "0.9rem" }}
               />
             </div>
 
@@ -233,14 +254,11 @@ function App() {
             </div>
 
             <div style={{ overflowY: "auto", flexGrow: 1 }}>
-              <img
+              <KrantAfbeelding
                 src={geselecteerd.voorpagina}
                 alt={`Voorpagina ${geselecteerd.naam}`}
-                style={{ width: "100%", display: "block" }}
-                onError={e => {
-                  e.target.style.display = "none";
-                  e.target.parentNode.innerHTML = `<div style="padding:40px;text-align:center;color:#999">⚠️ Afbeelding niet beschikbaar</div>`;
-                }}
+                stijl={{ width: "100%", display: "block" }}
+                foutStijl={{ padding: "40px", textAlign: "center", color: "#999" }}
               />
             </div>
 
