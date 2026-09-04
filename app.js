@@ -35,7 +35,7 @@ const kranten = [
   {
     naam: "NRC",
     url: "https://www.nrc.nl/",
-    voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260904/101-full-8a03fb.jpg",
+    voorpagina: `https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/${yyyy}${mm}${dd}/101-full-cb6304.jpg`,
     kleur: "#003082",
   },
   {
@@ -47,7 +47,7 @@ const kranten = [
   {
     naam: "Reformatorisch Dagblad",
     url: "https://www.rd.nl/",
-    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260904.jpg`,
+    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/${yyyy}/RDB_RDB_${rdDatum}.jpg`,
     kleur: "#2E5E2E",
   },
   {
