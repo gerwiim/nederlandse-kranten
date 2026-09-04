@@ -47,13 +47,13 @@ const kranten = [
   {
     naam: "Reformatorisch Dagblad",
     url: "https://www.rd.nl/",
-    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/${yyyy}/RDB_RDB_${rdDatum}.jpg`,
+    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260904.jpg`,
     kleur: "#2E5E2E",
   },
   {
     naam: "De Telegraaf",
     url: "https://www.telegraaf.nl/",
-    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3457/covers/Preview-MEDIUM-273361.jpg",
+    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3461/covers/Preview-MEDIUM-273558.jpg",
     kleur: "#E30613",
   },
   {
