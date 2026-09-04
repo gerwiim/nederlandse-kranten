@@ -35,7 +35,7 @@ const kranten = [
   {
     naam: "NRC",
     url: "https://www.nrc.nl/",
-    voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260904/101-full-cb6304.jpg",
+    voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260904/101-full-8a03fb.jpg",
     kleur: "#003082",
   },
   {
