@@ -27,9 +27,15 @@ const kranten = [
     kleur: "#E2001A",
   },
   {
+    naam: "Nederlands Dagblad",
+    url: "https://www.nd.nl/",
+    voorpagina: "https://storage.pubble.cloud/9ed0159c/paper/f9da25e6/files/large/1.jpg",
+    kleur: "#005B8E",
+  },
+  {
     naam: "NRC",
     url: "https://www.nrc.nl/",
-    voorpagina: `https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260904/101-full-8a03fb.jpg`,
+    voorpagina: `https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/${yyyy}${mm}${dd}/101-full-cb6304.jpg`,
     kleur: "#003082",
   },
   {
@@ -41,13 +47,13 @@ const kranten = [
   {
     naam: "Reformatorisch Dagblad",
     url: "https://www.rd.nl/",
-    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260904.jpg`,
+    voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/${yyyy}/RDB_RDB_${rdDatum}.jpg`,
     kleur: "#2E5E2E",
   },
   {
     naam: "De Telegraaf",
     url: "https://www.telegraaf.nl/",
-    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3461/covers/Preview-MEDIUM-273558.jpg",
+    voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3457/covers/Preview-MEDIUM-273361.jpg",
     kleur: "#E30613",
   },
   {
@@ -214,7 +220,6 @@ function App() {
             gap: "16px",
           }}
         >
-          {/* Pijl links */}
           <button
             onClick={e => { e.stopPropagation(); vorigeKrant(); }}
             style={pijlStijl}
@@ -222,7 +227,6 @@ function App() {
             onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
           >‹</button>
 
-          {/* Krantvenster */}
           <div
             onClick={e => e.stopPropagation()}
             style={{
@@ -274,7 +278,6 @@ function App() {
             </div>
           </div>
 
-          {/* Pijl rechts */}
           <button
             onClick={e => { e.stopPropagation(); volgendeKrant(); }}
             style={pijlStijl}
