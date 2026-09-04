@@ -96,7 +96,7 @@ def vervang_url(content, naam, quote, huidig, nieuwe_url):
 KRANTEN = [
     {"naam": "Algemeen Dagblad",       "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png", "nieuw": get_ad_url},
     {"naam": "Nederlands Dagblad",     "quote": '"', "huidig": None, "nieuw": get_nd_url},
-    {"naam": "NRC",                    "quote": "`", "huidig": None, "nieuw": get_nrc_url},
+    {"naam": "NRC",                    "quote": '"', "huidig": None, "nieuw": get_nrc_url},
     {"naam": "Het Parool",             "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png", "nieuw": get_parool_url},
     {"naam": "Reformatorisch Dagblad", "quote": "`", "huidig": None, "nieuw": get_rd_url},
     {"naam": "De Telegraaf",           "quote": '"', "huidig": None, "nieuw": get_telegraaf_url},
