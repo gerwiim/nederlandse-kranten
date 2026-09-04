@@ -16,6 +16,19 @@ HEADERS = {
 def get_ad_url():
     return "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png"
 
+def get_nd_url():
+    maand = str(now.month)  # zonder voorloopnul
+    try:
+        r = requests.get(f"https://www.nd.nl/archive/{yyyy}/{maand}", headers=HEADERS, timeout=10)
+        match = re.search(r'https://storage\.pubble\.cloud/9ed0159c/paper/[^/]+/files/thumb/1\.jpg', r.text)
+        if match:
+            return match.group(0).replace("/thumb/", "/large/").split("?")[0]
+        print("ND: geen URL gevonden in archief")
+        return None
+    except Exception as e:
+        print(f"ND fout: {e}")
+        return None
+
 def get_nrc_url():
     api = f"https://www.nrc.nl/de/data/NH/{yyyy}/{mm}/{dd}/"
     try:
@@ -61,7 +74,6 @@ def maak_regel(quote, url):
     return f"voorpagina: {quote}{url}{quote}"
 
 def vind_huidige_url(content, naam, quote):
-    """Zoek de huidige voorpagina-URL voor een specifieke krant."""
     q = re.escape(quote)
     patroon = r'naam:\s*"' + re.sub(r'([\\.+*?\^$\{\}\[\]\|\(\)])', r'\\\1', naam) + r'".*?voorpagina:\s*' + q + r'([^' + q + r']+)' + q
     match = re.search(patroon, content, flags=re.DOTALL)
@@ -70,7 +82,6 @@ def vind_huidige_url(content, naam, quote):
     return None
 
 def vervang_url(content, naam, quote, huidig, nieuwe_url):
-    """Vervang de voorpagina-URL via str.replace."""
     oude_regel = maak_regel(quote, huidig)
     nieuwe_regel = maak_regel(quote, nieuwe_url)
     if oude_regel in content:
@@ -83,13 +94,14 @@ def vervang_url(content, naam, quote, huidig, nieuwe_url):
 # ─── Krantenlijst ─────────────────────────────────────────────────────────────
 
 KRANTEN = [
-    {"naam": "Algemeen Dagblad",    "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png", "nieuw": get_ad_url},
-    {"naam": "NRC",                 "quote": "`", "huidig": None, "nieuw": get_nrc_url},
-    {"naam": "Het Parool",          "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png",    "nieuw": get_parool_url},
+    {"naam": "Algemeen Dagblad",       "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png", "nieuw": get_ad_url},
+    {"naam": "Nederlands Dagblad",     "quote": '"', "huidig": None, "nieuw": get_nd_url},
+    {"naam": "NRC",                    "quote": "`", "huidig": None, "nieuw": get_nrc_url},
+    {"naam": "Het Parool",             "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png", "nieuw": get_parool_url},
     {"naam": "Reformatorisch Dagblad", "quote": "`", "huidig": None, "nieuw": get_rd_url},
-    {"naam": "De Telegraaf",        "quote": '"', "huidig": None, "nieuw": get_telegraaf_url},
-    {"naam": "Trouw",               "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png",    "nieuw": get_trouw_url},
-    {"naam": "de Volkskrant",       "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png",    "nieuw": get_vk_url},
+    {"naam": "De Telegraaf",           "quote": '"', "huidig": None, "nieuw": get_telegraaf_url},
+    {"naam": "Trouw",                  "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png", "nieuw": get_trouw_url},
+    {"naam": "de Volkskrant",          "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png", "nieuw": get_vk_url},
 ]
 
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
