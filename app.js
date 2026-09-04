@@ -21,7 +21,7 @@ const krantenVandaag = [
   { naam: "Nederlands Dagblad",     url: "https://www.nd.nl/",         voorpagina: "https://storage.pubble.cloud/9ed0159c/paper/f9da25e6/files/large/1.jpg",                          kleur: "#005B8E" },
   { naam: "NRC",                    url: "https://www.nrc.nl/",        voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260904/101-full-8a03fb.jpg",                 kleur: "#003082" },
   { naam: "Het Parool",             url: "https://www.parool.nl/",     voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png",                                       kleur: "#1A1A1A" },
-  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/${yyyy}/RDB_RDB_${rdDatum}.jpg`,                           kleur: "#2E5E2E" },
+  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: `https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260904.jpg`,                           kleur: "#2E5E2E" },
   { naam: "De Telegraaf",           url: "https://www.telegraaf.nl/",  voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3461/covers/Preview-MEDIUM-273558.jpg", kleur: "#E30613" },
   { naam: "Trouw",                  url: "https://www.trouw.nl/",      voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png",                                       kleur: "#E87722" },
   { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", voorpagina: "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png",                                       kleur: "#CC0000" },
