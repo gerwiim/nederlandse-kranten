@@ -116,14 +116,14 @@ def vervang_url(content, naam, quote, huidig, nieuwe_url):
     return content
 
 APPJS_KRANTEN = [
-    {"naam": "Algemeen Dagblad",       "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png"},
-    {"naam": "Nederlands Dagblad",     "quote": '"', "huidig": None},
-    {"naam": "NRC",                    "quote": '"', "huidig": None},
-    {"naam": "Het Parool",             "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png"},
-    {"naam": "Reformatorisch Dagblad", "quote": '"', "huidig": None},
-    {"naam": "De Telegraaf",           "quote": '"', "huidig": None},
-    {"naam": "Trouw",                  "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png"},
-    {"naam": "de Volkskrant",          "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png"},
+    {"naam": "Algemeen Dagblad",       "quote": '"'},
+    {"naam": "Nederlands Dagblad",     "quote": '"'},
+    {"naam": "NRC",                    "quote": '"'},
+    {"naam": "Het Parool",             "quote": '"'},
+    {"naam": "Reformatorisch Dagblad", "quote": '"'},
+    {"naam": "De Telegraaf",           "quote": '"'},
+    {"naam": "Trouw",                  "quote": '"'},
+    {"naam": "de Volkskrant",          "quote": '"'},
 ]
 
 # ─── Afbeelding downloaden ───────────────────────────────────────────────────
@@ -175,23 +175,26 @@ def ruim_oude_covers_op():
 if __name__ == "__main__":
     print(f"Datum: {vandaag}")
 
-    # Haal alle URLs op
-    nieuwe_urls = {}
+    # Haal alle URLs op en download waar nodig
+    live_urls = {}   # originele externe URLs
+    nieuwe_urls = {} # uiteindelijke URLs voor archief en app.js
+
     for krant in KRANTEN:
         url = krant["nieuw"]()
+        naam = krant["naam"]
         if not url:
-            print(f" – Overgeslagen: {krant['naam']} (geen URL opgehaald)")
+            print(f" – Overgeslagen: {naam} (geen URL opgehaald)")
             continue
 
-        naam = krant["naam"]
+        live_urls[naam] = url
 
-        # Download afbeelding voor kranten zonder datumspecifieke externe URL
         if naam in DOWNLOAD_KRANTEN:
             lokaal_pad = download_afbeelding(naam, url)
             if lokaal_pad:
                 nieuwe_urls[naam] = lokaal_pad
             else:
-                nieuwe_urls[naam] = url  # fallback naar live URL
+                print(f" ⚠ Fallback naar live URL: {naam}")
+                nieuwe_urls[naam] = url
         else:
             nieuwe_urls[naam] = url
             print(f" ✓ Opgehaald: {naam}")
@@ -217,28 +220,23 @@ if __name__ == "__main__":
     # Ruim oude cover-bestanden op
     ruim_oude_covers_op()
 
-    # Bijwerken app.js (altijd live URLs voor vandaag)
+    # Bijwerken app.js
     with open("app.js", "r", encoding="utf-8") as f:
         appjs = f.read()
 
-    live_urls = {}
-    for krant in KRANTEN:
-        url = krant["nieuw"]()
-        if url:
-            live_urls[krant["naam"]] = url
-
     for krant in APPJS_KRANTEN:
         naam = krant["naam"]
-        if naam not in live_urls:
+        if naam not in nieuwe_urls:
             continue
         quote = krant["quote"]
-        huidig = krant["huidig"]
+
+        huidig = vind_huidige_url(appjs, naam, quote)
         if huidig is None:
-            huidig = vind_huidige_url(appjs, naam, quote)
-            if huidig is None:
-                print(f" ✗ Huidige URL niet gevonden in app.js: {naam}")
-                continue
-        appjs = vervang_url(appjs, naam, quote, huidig, live_urls[naam])
+            print(f" ✗ Huidige URL niet gevonden in app.js: {naam}")
+            continue
+
+        # Gedownloade kranten krijgen het lokale pad in app.js
+        appjs = vervang_url(appjs, naam, quote, huidig, nieuwe_urls[naam])
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(appjs)
