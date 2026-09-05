@@ -8,5 +8,15 @@
     "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3461/covers/Preview-MEDIUM-273558.jpg",
     "Trouw": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png",
     "de Volkskrant": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png"
+  },
+  "2026-09-05": {
+    "Algemeen Dagblad": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png",
+    "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/f224d883/files/large/1.jpg",
+    "NRC": "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260905/101-full-567ce8.jpg",
+    "Het Parool": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png",
+    "Reformatorisch Dagblad": "https://cdn.erdee.nl/epaper/_fpage/RDB/2026/RDB_RDB_20260905.jpg",
+    "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3463/covers/Preview-MEDIUM-273694.jpg",
+    "Trouw": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png",
+    "de Volkskrant": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png"
   }
 }
