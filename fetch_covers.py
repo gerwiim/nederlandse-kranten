@@ -18,8 +18,8 @@ ARCHIEF_BESTAND = "archive.json"
 COVERS_MAP = "covers"
 MAX_DAGEN = 7
 
-# Kranten waarvoor we de afbeelding downloaden (geen datumspecifieke URL)
-DOWNLOAD_KRANTEN = {"Algemeen Dagblad", "Het Parool", "Trouw", "de Volkskrant"}
+# Kranten waarvoor we de afbeelding downloaden (geen datumspecifieke externe URL)
+DOWNLOAD_KRANTEN = {"Algemeen Dagblad", "Het Parool", "Trouw", "de Volkskrant", "Reformatorisch Dagblad"}
 
 os.makedirs(COVERS_MAP, exist_ok=True)
 
@@ -56,10 +56,9 @@ def get_parool_url():
 
 def get_rd_url():
     d = date.today()
-    if d.weekday() == 6:
+    if d.weekday() == 6:  # zondag
         d = date.fromordinal(d.toordinal() - 1)
-    datum = d.strftime("%Y%m%d")
-    return f"https://cdn.erdee.nl/epaper/_fpage/RDB/{d.year}/RDB_RDB_{datum}.jpg"
+    return f"https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/{d.year}/{d.month:02d}/{d.day:02d}/1-large.jpg"
 
 def get_telegraaf_url():
     api = "https://mhu-tlg-production-backend-api.twipecloud.net/Data/DataService.svc/getcontentpackagelist/TWPMHUTLG/0/30"
@@ -121,7 +120,7 @@ APPJS_KRANTEN = [
     {"naam": "Nederlands Dagblad",     "quote": '"', "huidig": None},
     {"naam": "NRC",                    "quote": '"', "huidig": None},
     {"naam": "Het Parool",             "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/hp/latest.png"},
-    {"naam": "Reformatorisch Dagblad", "quote": "`", "huidig": None},
+    {"naam": "Reformatorisch Dagblad", "quote": '"', "huidig": None},
     {"naam": "De Telegraaf",           "quote": '"', "huidig": None},
     {"naam": "Trouw",                  "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/tr/latest.png"},
     {"naam": "de Volkskrant",          "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png"},
@@ -134,8 +133,11 @@ def bestandsnaam(naam):
 
 def download_afbeelding(naam, url):
     pad = os.path.join(COVERS_MAP, f"{bestandsnaam(naam)}-{vandaag}.jpg")
+    extra_headers = {}
+    if "digibron.nl" in url:
+        extra_headers["Referer"] = "https://www.digibron.nl/"
     try:
-        r = requests.get(url, headers=HEADERS, timeout=15)
+        r = requests.get(url, headers={**HEADERS, **extra_headers}, timeout=15)
         if r.status_code == 200 and "image" in r.headers.get("Content-Type", ""):
             with open(pad, "wb") as f:
                 f.write(r.content)
@@ -156,7 +158,6 @@ def ruim_oude_covers_op():
     for bestand in os.listdir(COVERS_MAP):
         if not bestand.endswith(".jpg"):
             continue
-        # Bestandsnaam eindigt op -YYYY-MM-DD.jpg
         try:
             datum_str = bestand[-14:-4]  # laatste 10 tekens voor .jpg
             bestand_datum = date.fromisoformat(datum_str)
@@ -184,11 +185,11 @@ if __name__ == "__main__":
 
         naam = krant["naam"]
 
-        # Download afbeelding voor kranten zonder datumspecifieke URL
+        # Download afbeelding voor kranten zonder datumspecifieke externe URL
         if naam in DOWNLOAD_KRANTEN:
             lokaal_pad = download_afbeelding(naam, url)
             if lokaal_pad:
-                nieuwe_urls[naam] = lokaal_pad  # lokaal pad opslaan in archief
+                nieuwe_urls[naam] = lokaal_pad
             else:
                 nieuwe_urls[naam] = url  # fallback naar live URL
         else:
@@ -216,11 +217,10 @@ if __name__ == "__main__":
     # Ruim oude cover-bestanden op
     ruim_oude_covers_op()
 
-    # Bijwerken app.js (vandaag's URLs — altijd live URLs voor vandaag)
+    # Bijwerken app.js (altijd live URLs voor vandaag)
     with open("app.js", "r", encoding="utf-8") as f:
         appjs = f.read()
 
-    # Voor app.js gebruiken we altijd de originele live URL (niet het lokale pad)
     live_urls = {}
     for krant in KRANTEN:
         url = krant["nieuw"]()
