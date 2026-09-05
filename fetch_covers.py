@@ -1,7 +1,8 @@
 import requests
 import re
 import json
-from datetime import datetime, date
+import os
+from datetime import datetime, date, timedelta
 
 now = datetime.now()
 yyyy = now.strftime("%Y")
@@ -14,7 +15,13 @@ HEADERS = {
 }
 
 ARCHIEF_BESTAND = "archive.json"
+COVERS_MAP = "covers"
 MAX_DAGEN = 7
+
+# Kranten waarvoor we de afbeelding downloaden (geen datumspecifieke URL)
+DOWNLOAD_KRANTEN = {"Algemeen Dagblad", "Het Parool", "Trouw", "de Volkskrant"}
+
+os.makedirs(COVERS_MAP, exist_ok=True)
 
 # ─── URL-functies ────────────────────────────────────────────────────────────
 
@@ -49,7 +56,7 @@ def get_parool_url():
 
 def get_rd_url():
     d = date.today()
-    if d.weekday() == 6:  # zondag
+    if d.weekday() == 6:
         d = date.fromordinal(d.toordinal() - 1)
     datum = d.strftime("%Y%m%d")
     return f"https://cdn.erdee.nl/epaper/_fpage/RDB/{d.year}/RDB_RDB_{datum}.jpg"
@@ -86,7 +93,7 @@ KRANTEN = [
     {"naam": "de Volkskrant",          "nieuw": get_vk_url},
 ]
 
-# ─── Hulpfuncties ────────────────────────────────────────────────────────────
+# ─── Hulpfuncties app.js ─────────────────────────────────────────────────────
 
 def maak_regel(quote, url):
     return f"voorpagina: {quote}{url}{quote}"
@@ -109,8 +116,6 @@ def vervang_url(content, naam, quote, huidig, nieuwe_url):
         print(f" ✗ Niet gevonden in app.js: {naam}")
     return content
 
-# ─── app.js quote per krant ──────────────────────────────────────────────────
-
 APPJS_KRANTEN = [
     {"naam": "Algemeen Dagblad",       "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/ad/ad/latest.png"},
     {"naam": "Nederlands Dagblad",     "quote": '"', "huidig": None},
@@ -122,6 +127,48 @@ APPJS_KRANTEN = [
     {"naam": "de Volkskrant",          "quote": '"', "huidig": "https://cdn-03.tapp.dpgmedia.cloud/packshot/vk/latest.png"},
 ]
 
+# ─── Afbeelding downloaden ───────────────────────────────────────────────────
+
+def bestandsnaam(naam):
+    return naam.lower().replace(" ", "-").replace("'", "")
+
+def download_afbeelding(naam, url):
+    pad = os.path.join(COVERS_MAP, f"{bestandsnaam(naam)}-{vandaag}.jpg")
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        if r.status_code == 200 and "image" in r.headers.get("Content-Type", ""):
+            with open(pad, "wb") as f:
+                f.write(r.content)
+            print(f" ✓ Gedownload: {pad}")
+            return pad
+        else:
+            print(f" ✗ Download mislukt ({r.status_code}): {naam}")
+            return None
+    except Exception as e:
+        print(f" ✗ Download fout {naam}: {e}")
+        return None
+
+# ─── Oude bestanden opruimen ─────────────────────────────────────────────────
+
+def ruim_oude_covers_op():
+    grens = date.today() - timedelta(days=MAX_DAGEN)
+    verwijderd = 0
+    for bestand in os.listdir(COVERS_MAP):
+        if not bestand.endswith(".jpg"):
+            continue
+        # Bestandsnaam eindigt op -YYYY-MM-DD.jpg
+        try:
+            datum_str = bestand[-14:-4]  # laatste 10 tekens voor .jpg
+            bestand_datum = date.fromisoformat(datum_str)
+            if bestand_datum < grens:
+                os.remove(os.path.join(COVERS_MAP, bestand))
+                print(f" 🗑 Cover verwijderd: {bestand}")
+                verwijderd += 1
+        except Exception:
+            continue
+    if verwijderd == 0:
+        print(" ✓ Geen oude covers om op te ruimen")
+
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -131,11 +178,22 @@ if __name__ == "__main__":
     nieuwe_urls = {}
     for krant in KRANTEN:
         url = krant["nieuw"]()
-        if url:
-            nieuwe_urls[krant["naam"]] = url
-            print(f" ✓ Opgehaald: {krant['naam']}")
-        else:
+        if not url:
             print(f" – Overgeslagen: {krant['naam']} (geen URL opgehaald)")
+            continue
+
+        naam = krant["naam"]
+
+        # Download afbeelding voor kranten zonder datumspecifieke URL
+        if naam in DOWNLOAD_KRANTEN:
+            lokaal_pad = download_afbeelding(naam, url)
+            if lokaal_pad:
+                nieuwe_urls[naam] = lokaal_pad  # lokaal pad opslaan in archief
+            else:
+                nieuwe_urls[naam] = url  # fallback naar live URL
+        else:
+            nieuwe_urls[naam] = url
+            print(f" ✓ Opgehaald: {naam}")
 
     # Sla op in archive.json (max 7 dagen bewaren)
     try:
@@ -146,7 +204,6 @@ if __name__ == "__main__":
 
     archief[vandaag] = nieuwe_urls
 
-    # Verwijder dagen ouder dan MAX_DAGEN
     gesorteerde_datums = sorted(archief.keys(), reverse=True)
     for oude_datum in gesorteerde_datums[MAX_DAGEN:]:
         del archief[oude_datum]
@@ -156,13 +213,23 @@ if __name__ == "__main__":
         json.dump(archief, f, ensure_ascii=False, indent=2)
     print(f"archive.json bijgewerkt ({len(archief)} dagen opgeslagen).")
 
-    # Bijwerken app.js (vandaag's URLs)
+    # Ruim oude cover-bestanden op
+    ruim_oude_covers_op()
+
+    # Bijwerken app.js (vandaag's URLs — altijd live URLs voor vandaag)
     with open("app.js", "r", encoding="utf-8") as f:
         appjs = f.read()
 
+    # Voor app.js gebruiken we altijd de originele live URL (niet het lokale pad)
+    live_urls = {}
+    for krant in KRANTEN:
+        url = krant["nieuw"]()
+        if url:
+            live_urls[krant["naam"]] = url
+
     for krant in APPJS_KRANTEN:
         naam = krant["naam"]
-        if naam not in nieuwe_urls:
+        if naam not in live_urls:
             continue
         quote = krant["quote"]
         huidig = krant["huidig"]
@@ -171,7 +238,7 @@ if __name__ == "__main__":
             if huidig is None:
                 print(f" ✗ Huidige URL niet gevonden in app.js: {naam}")
                 continue
-        appjs = vervang_url(appjs, naam, quote, huidig, nieuwe_urls[naam])
+        appjs = vervang_url(appjs, naam, quote, huidig, live_urls[naam])
 
     with open("app.js", "w", encoding="utf-8") as f:
         f.write(appjs)
