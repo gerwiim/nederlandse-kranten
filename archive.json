@@ -57,5 +57,15 @@
     "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3473/covers/Preview-MEDIUM-274440.jpg",
     "Trouw": "covers/trouw-2026-09-09.jpg",
     "de Volkskrant": "covers/de-volkskrant-2026-09-09.jpg"
+  },
+  "2026-09-10": {
+    "Algemeen Dagblad": "covers/algemeen-dagblad-2026-09-10.jpg",
+    "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/600fe799/files/large/1.jpg",
+    "NRC": "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260910/101-full-8bb9ba.jpg",
+    "Het Parool": "covers/het-parool-2026-09-10.jpg",
+    "Reformatorisch Dagblad": "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/09/10/1-large.jpg",
+    "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3476/covers/Preview-MEDIUM-274636.jpg",
+    "Trouw": "covers/trouw-2026-09-10.jpg",
+    "de Volkskrant": "covers/de-volkskrant-2026-09-10.jpg"
   }
 }
