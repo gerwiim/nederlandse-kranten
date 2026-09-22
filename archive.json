@@ -1,14 +1,4 @@
 {
-  "2026-09-15": {
-    "Algemeen Dagblad": "covers/algemeen-dagblad-2026-09-15.jpg",
-    "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/34572b42/files/large/1.jpg",
-    "NRC": "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260915/101-full-327604.jpg",
-    "Het Parool": "covers/het-parool-2026-09-15.jpg",
-    "Reformatorisch Dagblad": "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/09/15/1-large.jpg",
-    "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3489/covers/Preview-MEDIUM-276242.jpg",
-    "Trouw": "covers/trouw-2026-09-15.jpg",
-    "de Volkskrant": "covers/de-volkskrant-2026-09-15.jpg"
-  },
   "2026-09-16": {
     "Algemeen Dagblad": "covers/algemeen-dagblad-2026-09-16.jpg",
     "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/e1209ca0/files/large/1.jpg",
@@ -67,5 +57,15 @@
     "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3502/covers/Preview-MEDIUM-277857.jpg",
     "Trouw": "covers/trouw-2026-09-21.jpg",
     "de Volkskrant": "covers/de-volkskrant-2026-09-21.jpg"
+  },
+  "2026-09-22": {
+    "Algemeen Dagblad": "covers/algemeen-dagblad-2026-09-22.jpg",
+    "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/ba9da701/files/large/1.jpg",
+    "NRC": "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260922/101-full-7e024a.jpg",
+    "Het Parool": "covers/het-parool-2026-09-22.jpg",
+    "Reformatorisch Dagblad": "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/09/22/1-large.jpg",
+    "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3504/covers/Preview-MEDIUM-277961.jpg",
+    "Trouw": "covers/trouw-2026-09-22.jpg",
+    "de Volkskrant": "covers/de-volkskrant-2026-09-22.jpg"
   }
 }
