@@ -21,7 +21,7 @@ const krantenVandaag = [
   { naam: "Nederlands Dagblad",     url: "https://www.nd.nl/",         voorpagina: "https://storage.pubble.cloud/9ed0159c/paper/905ff575/files/large/1.jpg",                          kleur: "#005B8E" },
   { naam: "NRC",                    url: "https://www.nrc.nl/",        voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20260929/101-full-ae7505.jpg",                 kleur: "#003082" },
   { naam: "Het Parool",             url: "https://www.parool.nl/",     voorpagina: "covers/het-parool-2026-09-29.jpg",                                       kleur: "#1A1A1A" },
-  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/09/29/1-large.jpg",                           kleur: "#2E5E2E" },
+  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: "covers/reformatorisch-dagblad-2026-09-29.jpg",                           kleur: "#2E5E2E" },
   { naam: "De Telegraaf",           url: "https://www.telegraaf.nl/",  voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3521/covers/Preview-MEDIUM-279760.jpg", kleur: "#E30613" },
   { naam: "Trouw",                  url: "https://www.trouw.nl/",      voorpagina: "covers/trouw-2026-09-29.jpg",                                       kleur: "#E87722" },
   { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", voorpagina: "covers/de-volkskrant-2026-09-29.jpg",                                       kleur: "#CC0000" },
