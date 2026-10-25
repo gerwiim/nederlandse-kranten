@@ -1,13 +1,4 @@
 {
-  "2026-10-18": {
-    "Algemeen Dagblad": "covers/algemeen-dagblad-2026-10-18.jpg",
-    "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/e942e0a0/files/large/1.jpg",
-    "Het Parool": "covers/het-parool-2026-10-18.jpg",
-    "Reformatorisch Dagblad": "covers/reformatorisch-dagblad-2026-10-18.jpg",
-    "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3563/covers/Preview-MEDIUM-282954.jpg",
-    "Trouw": "covers/trouw-2026-10-18.jpg",
-    "de Volkskrant": "covers/de-volkskrant-2026-10-18.jpg"
-  },
   "2026-10-19": {
     "Algemeen Dagblad": "covers/algemeen-dagblad-2026-10-19.jpg",
     "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/da0b1ed5/files/large/1.jpg",
@@ -67,5 +58,14 @@
     "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3580/covers/Preview-MEDIUM-284159.jpg",
     "Trouw": "covers/trouw-2026-10-24.jpg",
     "de Volkskrant": "covers/de-volkskrant-2026-10-24.jpg"
+  },
+  "2026-10-25": {
+    "Algemeen Dagblad": "covers/algemeen-dagblad-2026-10-25.jpg",
+    "Nederlands Dagblad": "https://storage.pubble.cloud/9ed0159c/paper/efed779b/files/large/1.jpg",
+    "Het Parool": "covers/het-parool-2026-10-25.jpg",
+    "Reformatorisch Dagblad": "covers/reformatorisch-dagblad-2026-10-25.jpg",
+    "De Telegraaf": "https://mhu-tlg-webreader-production.twipemobile.com/data/3580/covers/Preview-MEDIUM-284159.jpg",
+    "Trouw": "covers/trouw-2026-10-25.jpg",
+    "de Volkskrant": "covers/de-volkskrant-2026-10-25.jpg"
   }
 }
