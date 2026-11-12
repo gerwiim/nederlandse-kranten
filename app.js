@@ -17,14 +17,14 @@ function getRdDatum() {
 const rdDatum = getRdDatum();
 
 const krantenVandaag = [
-  { naam: "Algemeen Dagblad",       url: "https://www.ad.nl/",         voorpagina: "covers/algemeen-dagblad-2026-11-11.jpg",                                    kleur: "#E2001A" },
+  { naam: "Algemeen Dagblad",       url: "https://www.ad.nl/",         voorpagina: "covers/algemeen-dagblad-2026-11-12.jpg",                                    kleur: "#E2001A" },
   { naam: "Nederlands Dagblad",     url: "https://www.nd.nl/",         voorpagina: "https://storage.pubble.cloud/9ed0159c/paper/bab91857/files/large/1.jpg",                          kleur: "#005B8E" },
-  { naam: "NRC",                    url: "https://www.nrc.nl/",        voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20261111/101-full-30c57c.jpg",                 kleur: "#003082" },
-  { naam: "Het Parool",             url: "https://www.parool.nl/",     voorpagina: "covers/het-parool-2026-11-11.jpg",                                       kleur: "#1A1A1A" },
-  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/11/11/1-large.jpg",                           kleur: "#2E5E2E" },
-  { naam: "De Telegraaf",           url: "https://www.telegraaf.nl/",  voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3624/covers/Preview-MEDIUM-288099.jpg", kleur: "#E30613" },
-  { naam: "Trouw",                  url: "https://www.trouw.nl/",      voorpagina: "covers/trouw-2026-11-11.jpg",                                       kleur: "#E87722" },
-  { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", voorpagina: "covers/de-volkskrant-2026-11-11.jpg",                                       kleur: "#CC0000" },
+  { naam: "NRC",                    url: "https://www.nrc.nl/",        voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20261112/101-full-9a4102.jpg",                 kleur: "#003082" },
+  { naam: "Het Parool",             url: "https://www.parool.nl/",     voorpagina: "covers/het-parool-2026-11-12.jpg",                                       kleur: "#1A1A1A" },
+  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/11/12/1-large.jpg",                           kleur: "#2E5E2E" },
+  { naam: "De Telegraaf",           url: "https://www.telegraaf.nl/",  voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3625/covers/Preview-MEDIUM-288142.jpg", kleur: "#E30613" },
+  { naam: "Trouw",                  url: "https://www.trouw.nl/",      voorpagina: "covers/trouw-2026-11-12.jpg",                                       kleur: "#E87722" },
+  { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", voorpagina: "covers/de-volkskrant-2026-11-12.jpg",                                       kleur: "#CC0000" },
 ];
 
 const krantenMeta = Object.fromEntries(
