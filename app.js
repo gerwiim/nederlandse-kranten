@@ -1,40 +1,29 @@
 const { useState, useEffect } = React;
 
 const now = new Date();
-const yyyy = now.getFullYear();
-const mm = String(now.getMonth() + 1).padStart(2, "0");
-const dd = String(now.getDate()).padStart(2, "0");
-const vandaag = `${yyyy}-${mm}-${dd}`;
+const vandaag = [
+  now.getFullYear(),
+  String(now.getMonth() + 1).padStart(2, "0"),
+  String(now.getDate()).padStart(2, "0"),
+].join("-");
 
-function getRdDatum() {
-  const d = new Date();
-  if (d.getDay() === 0) d.setDate(d.getDate() - 1);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const dag = String(d.getDate()).padStart(2, "0");
-  return `${y}${m}${dag}`;
-}
-const rdDatum = getRdDatum();
-
-const krantenVandaag = [
-  { naam: "Algemeen Dagblad",       url: "https://www.ad.nl/",         voorpagina: "covers/algemeen-dagblad-2026-11-16.jpg",                                    kleur: "#E2001A" },
-  { naam: "Nederlands Dagblad",     url: "https://www.nd.nl/",         voorpagina: "https://storage.pubble.cloud/9ed0159c/paper/bab91857/files/large/1.jpg",                          kleur: "#005B8E" },
-  { naam: "NRC",                    url: "https://www.nrc.nl/",        voorpagina: "https://s3-eu-west-1.amazonaws.com/nrchub/pages/NH/20261116/101-full-932afb.jpg",                 kleur: "#003082" },
-  { naam: "Het Parool",             url: "https://www.parool.nl/",     voorpagina: "covers/het-parool-2026-11-16.jpg",                                       kleur: "#1A1A1A" },
-  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         voorpagina: "https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/2026/11/16/1-large.jpg",                           kleur: "#2E5E2E" },
-  { naam: "De Telegraaf",           url: "https://www.telegraaf.nl/",  voorpagina: "https://mhu-tlg-webreader-production.twipemobile.com/data/3634/covers/Preview-MEDIUM-289090.jpg", kleur: "#E30613" },
-  { naam: "Trouw",                  url: "https://www.trouw.nl/",      voorpagina: "covers/trouw-2026-11-16.jpg",                                       kleur: "#E87722" },
-  { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", voorpagina: "covers/de-volkskrant-2026-11-16.jpg",                                       kleur: "#CC0000" },
+// Vaste gegevens per krant. De voorpagina's zelf komen uit archive.json,
+// dat twee keer per dag door fetch_covers.py wordt bijgewerkt.
+const krantenMeta = [
+  { naam: "Algemeen Dagblad",       url: "https://www.ad.nl/",         kleur: "#E2001A" },
+  { naam: "Nederlands Dagblad",     url: "https://www.nd.nl/",         kleur: "#005B8E" },
+  { naam: "NRC",                    url: "https://www.nrc.nl/",        kleur: "#003082" },
+  { naam: "Het Parool",             url: "https://www.parool.nl/",     kleur: "#1A1A1A" },
+  { naam: "Reformatorisch Dagblad", url: "https://www.rd.nl/",         kleur: "#2E5E2E" },
+  { naam: "De Telegraaf",           url: "https://www.telegraaf.nl/",  kleur: "#E30613" },
+  { naam: "Trouw",                  url: "https://www.trouw.nl/",      kleur: "#E87722" },
+  { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", kleur: "#CC0000" },
 ];
-
-const krantenMeta = Object.fromEntries(
-  krantenVandaag.map(k => [k.naam, { url: k.url, kleur: k.kleur }])
-);
 
 function KrantAfbeelding({ src, alt, stijl, foutStijl }) {
   const [fout, setFout] = useState(false);
   useEffect(() => { setFout(false); }, [src]);
-  if (fout) return <div style={foutStijl}>⚠️ Voorpagina<br />niet beschikbaar</div>;
+  if (fout || !src) return <div style={foutStijl}>⚠️ Voorpagina<br />niet beschikbaar</div>;
   return <img src={src} alt={alt} style={stijl} onError={() => setFout(true)} />;
 }
 
@@ -45,35 +34,27 @@ function formatDatum(dateStr) {
 
 function App() {
   const [index, setIndex] = useState(null);
-  const [geselecteerdeDatum, setGeselecteerdeDatum] = useState(vandaag);
+  const [geselecteerdeDatum, setGeselecteerdeDatum] = useState(null);
   const [archief, setArchief] = useState(null);
   const [archiefFout, setArchiefFout] = useState(false);
 
   useEffect(() => {
-    fetch("archive.json")
+    // Querystring voorkomt dat de browser een verouderde versie uit de cache toont.
+    fetch(`archive.json?t=${Date.now()}`)
       .then(r => r.json())
-      .then(data => setArchief(data))
+      .then(data => {
+        setArchief(data);
+        const datums = Object.keys(data).sort().reverse();
+        if (datums.length) setGeselecteerdeDatum(datums[0]);
+      })
       .catch(() => setArchiefFout(true));
   }, []);
 
-  const isVandaag = geselecteerdeDatum === vandaag;
-  let kranten;
-  if (isVandaag) {
-    kranten = krantenVandaag;
-  } else if (archief && archief[geselecteerdeDatum]) {
-    kranten = Object.entries(archief[geselecteerdeDatum]).map(([naam, voorpagina]) => ({
-      naam,
-      voorpagina,
-      url: krantenMeta[naam]?.url || "#",
-      kleur: krantenMeta[naam]?.kleur || "#333",
-    }));
-  } else {
-    kranten = [];
-  }
-
-  const beschikbareDatums = archief
-    ? [vandaag, ...Object.keys(archief).filter(d => d !== vandaag).sort().reverse()]
-    : [vandaag];
+  const beschikbareDatums = archief ? Object.keys(archief).sort().reverse() : [];
+  const dagData = (archief && geselecteerdeDatum && archief[geselecteerdeDatum]) || {};
+  const kranten = archief && geselecteerdeDatum
+    ? krantenMeta.map(k => ({ ...k, voorpagina: dagData[k.naam] || null }))
+    : [];
 
   const geselecteerd = index !== null ? kranten[index] : null;
   const vorigeKrant = () => setIndex((index - 1 + kranten.length) % kranten.length);
@@ -90,9 +71,11 @@ function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [index, kranten]);
 
-  const today = now.toLocaleDateString("nl-NL", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
+  const kopDatum = geselecteerdeDatum
+    ? new Date(geselecteerdeDatum + "T12:00:00").toLocaleDateString("nl-NL", {
+        weekday: "long", year: "numeric", month: "long", day: "numeric",
+      })
+    : "";
 
   const pijlStijl = {
     background: "rgba(255,255,255,0.15)", border: "none", color: "white",
@@ -108,7 +91,7 @@ function App() {
       <div style={{ background: "#1a1a1a", color: "white", padding: "24px 32px", marginBottom: "24px" }}>
         <h1 style={{ margin: 0, fontSize: "2rem", letterSpacing: "1px" }}>📰 Nederlandse Kranten</h1>
         <p style={{ margin: "6px 0 0 0", color: "#aaa", fontSize: "0.95rem" }}>
-          Voorpagina's van vandaag — {today}
+          {geselecteerdeDatum === vandaag ? "Voorpagina's van vandaag" : "Voorpagina's"}{kopDatum && ` — ${kopDatum}`}
         </p>
       </div>
 
@@ -116,7 +99,7 @@ function App() {
       <div style={{ padding: "0 32px", marginBottom: "28px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
         <span style={{ fontWeight: "bold", fontSize: "0.95rem", color: "#444" }}>Datum:</span>
         <select
-          value={geselecteerdeDatum}
+          value={geselecteerdeDatum || ""}
           onChange={e => { setGeselecteerdeDatum(e.target.value); setIndex(null); }}
           style={{
             padding: "8px 14px", borderRadius: "8px", border: "1px solid #ccc",
@@ -138,7 +121,7 @@ function App() {
       {/* Krantenraster */}
       {kranten.length === 0 ? (
         <div style={{ padding: "0 32px", color: "#888" }}>
-          Geen voorpagina's beschikbaar voor deze datum.
+          {archief || archiefFout ? "Geen voorpagina's beschikbaar voor deze datum." : "Laden…"}
         </div>
       ) : (
         <div style={{
