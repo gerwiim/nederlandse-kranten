@@ -23,7 +23,26 @@ const krantenMeta = [
 function KrantAfbeelding({ src, alt, stijl, foutStijl }) {
   const [fout, setFout] = useState(false);
   useEffect(() => { setFout(false); }, [src]);
-  if (fout || !src) return <div style={foutStijl}>⚠️ Voorpagina<br />niet beschikbaar</div>;
+  if (fout || !src) {
+    // Sommige bronnen (zoals digibron.nl) laten zich niet als plaatje insluiten,
+    // maar openen wel als je de link zelf bezoekt. Bied die link dan aan.
+    const extern = src && src.startsWith("http");
+    return (
+      <div style={foutStijl}>
+        {extern ? (
+          <a
+            href={src} target="_blank" rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{ color: "#555", fontWeight: "bold" }}
+          >
+            📰 Bekijk voorpagina ↗
+          </a>
+        ) : (
+          <>⚠️ Voorpagina<br />niet beschikbaar</>
+        )}
+      </div>
+    );
+  }
   return <img src={src} alt={alt} style={stijl} onError={() => setFout(true)} />;
 }
 
