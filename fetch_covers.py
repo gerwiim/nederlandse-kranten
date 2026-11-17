@@ -119,7 +119,8 @@ def bestandsnaam(naam):
 def is_afbeelding(inhoud):
     return (inhoud.startswith(b"\xff\xd8\xff")        # JPEG
             or inhoud.startswith(b"\x89PNG")          # PNG
-            or inhoud[:4] == b"RIFF" and inhoud[8:12] == b"WEBP")
+            or inhoud[:4] == b"RIFF" and inhoud[8:12] == b"WEBP"
+            or inhoud[4:8] == b"ftyp")                # AVIF/HEIF
 
 def download_afbeelding(naam, url):
     pad = os.path.join(COVERS_MAP, f"{bestandsnaam(naam)}-{vandaag}.jpg")
@@ -132,7 +133,7 @@ def download_afbeelding(naam, url):
         ]
     for extra in pogingen:
         try:
-            r = requests.get(url, headers={**HEADERS, "Accept": "image/avif,image/webp,image/*,*/*;q=0.8", **extra}, timeout=15)
+            r = requests.get(url, headers={**HEADERS, "Accept": "image/jpeg,image/png,image/*;q=0.8,*/*;q=0.5", **extra}, timeout=15)
         except Exception as e:
             print(f" ✗ Download fout {naam}: {e}")
             continue
