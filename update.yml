@@ -1,0 +1,45 @@
+name: Dagelijkse update voorpagina's
+
+on:
+  schedule:
+    # Tijden in UTC. Elke run haalt alle kranten op; een latere run van
+    # dezelfde dag vervangt eerdere covers. GitHub start vaak wat later.
+    - cron: '0 4 * * *'   # 05:00 wintertijd / 06:00 zomertijd
+    - cron: '0 9 * * *'   # 10:00 wintertijd / 11:00 zomertijd
+    - cron: '0 14 * * *'  # 15:00 wintertijd / 16:00 zomertijd — o.a. RD (middagkrant)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-covers
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Haal code op
+        uses: actions/checkout@v4.2.2
+
+      - name: Installeer Python
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.13'
+
+      - name: Installeer dependencies
+        run: pip install requests
+
+      - name: Voer update script uit
+        run: python fetch_covers.py
+
+      - name: Sla wijzigingen op in GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A archive.json covers/
+          git diff --staged --quiet || git commit -m "Automatische update voorpagina's $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase
+          git push
