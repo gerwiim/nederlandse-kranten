@@ -6,6 +6,13 @@ on:
     - cron: '0 9 * * *'   # 11:00 zomertijd — DPG-kranten en RD
   workflow_dispatch:
 
+permissions:
+  contents: write
+
+concurrency:
+  group: update-covers
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -22,9 +29,6 @@ jobs:
       - name: Installeer dependencies
         run: pip install requests
 
-      - name: Debug app.js
-        run: python debug.py
-
       - name: Voer update script uit
         run: python fetch_covers.py
 
@@ -32,6 +36,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add app.js archive.json covers/
+          git add -A archive.json covers/
           git diff --staged --quiet || git commit -m "Automatische update voorpagina's $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase
           git push
