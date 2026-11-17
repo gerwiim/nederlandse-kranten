@@ -79,6 +79,11 @@ def get_rd_url():
         return None
     return f"https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/{d.year}/{d.month:02d}/{d.day:02d}/1-large.jpg"
 
+def get_rd_reserve_url():
+    # Lagere resolutie, maar zonder de beveiligingscontrole van digibron.
+    d = vandaag_datum
+    return f"https://cdn.erdee.nl/epaper/_fpage/RDB/{d.year}/RDB_RDB_{d:%Y%m%d}.jpg"
+
 def get_telegraaf_url():
     api = "https://mhu-tlg-production-backend-api.twipecloud.net/Data/DataService.svc/getcontentpackagelist/TWPMHUTLG/0/30"
     try:
@@ -126,11 +131,9 @@ def download_afbeelding(naam, url):
     pad = os.path.join(COVERS_MAP, f"{bestandsnaam(naam)}-{vandaag}.jpg")
     pogingen = [{}]
     if "digibron.nl" in url:
-        pogingen = [
-            {"Referer": "https://www.digibron.nl/"},
-            {"Referer": "https://www.rd.nl/"},
-            {},
-        ]
+        pogingen = [{"Referer": "https://www.digibron.nl/"}]
+    elif "erdee.nl" in url:
+        pogingen = [{"Referer": "https://www.rd.nl/"}, {}]
     for extra in pogingen:
         try:
             r = requests.get(url, headers={**HEADERS, "Accept": "image/jpeg,image/png,image/*;q=0.8,*/*;q=0.5", **extra}, timeout=15)
@@ -179,6 +182,9 @@ if __name__ == "__main__":
 
         if naam in DOWNLOAD_KRANTEN:
             lokaal_pad = download_afbeelding(naam, url)
+            if not lokaal_pad and naam == "Reformatorisch Dagblad":
+                print(" ↪ Reformatorisch Dagblad: probeer reservebron (erdee.nl)")
+                lokaal_pad = download_afbeelding(naam, get_rd_reserve_url())
             if lokaal_pad:
                 nieuwe_urls[naam] = lokaal_pad
             else:
