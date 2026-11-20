@@ -2,8 +2,12 @@ name: Dagelijkse update voorpagina's
 
 on:
   schedule:
-    - cron: '0 4 * * *'   # 06:00 zomertijd — NRC en Telegraaf
-    - cron: '0 9 * * *'   # 11:00 zomertijd — DPG-kranten en RD
+    # Tijden in UTC, bewust niet op het hele uur (dan is GitHub het drukst).
+    # Elke run haalt alle kranten op; een latere run van dezelfde dag
+    # vervangt eerdere covers. GitHub start geplande runs vaak later.
+    - cron: '17 4 * * *'  # 05:17 wintertijd / 06:17 zomertijd
+    - cron: '17 9 * * *'  # 10:17 wintertijd / 11:17 zomertijd
+    - cron: '17 14 * * *'  # 15:17 wintertijd / 16:17 zomertijd — o.a. RD (middagkrant)
   workflow_dispatch:
 
 permissions:
