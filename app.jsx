@@ -41,7 +41,7 @@ function KrantAfbeelding({ src, alt, stijl, foutStijl }) {
           <a
             href={src} target="_blank" rel="noopener noreferrer"
             onClick={e => e.stopPropagation()}
-            style={{ color: "#555", fontWeight: "bold" }}
+            style={{ color: "var(--link-zacht)", fontWeight: "bold" }}
           >
             📰 Bekijk voorpagina ↗
           </a>
@@ -59,7 +59,27 @@ function formatDatum(dateStr) {
   return d.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
 }
 
+// Thema: "auto" volgt de instelling van het apparaat, of "licht"/"donker".
+const THEMAS = ["auto", "licht", "donker"];
+const THEMA_LABEL = { auto: "🌓 Automatisch", licht: "☀️ Licht", donker: "🌙 Donker" };
+
+function leesThema() {
+  try {
+    const t = localStorage.getItem("thema");
+    return THEMAS.includes(t) ? t : "auto";
+  } catch (e) {
+    return "auto";
+  }
+}
+
 function App() {
+  const [thema, setThema] = useState(leesThema);
+  useEffect(() => {
+    document.documentElement.dataset.thema = thema;
+    try { localStorage.setItem("thema", thema); } catch (e) {}
+  }, [thema]);
+  const volgendThema = () => setThema(THEMAS[(THEMAS.indexOf(thema) + 1) % THEMAS.length]);
+
   const [index, setIndex] = useState(null);
   const [geselecteerdeDatum, setGeselecteerdeDatum] = useState(null);
   const [archief, setArchief] = useState(null);
@@ -137,11 +157,23 @@ function App() {
   };
 
   return (
-    <div style={{ fontFamily: "Georgia, serif", background: "#f4f1ec", minHeight: "100vh", paddingBottom: "48px" }}>
+    <div style={{ fontFamily: "Georgia, serif", background: "var(--achtergrond)", color: "var(--tekst)", minHeight: "100vh", paddingBottom: "48px" }}>
 
       {/* Header */}
-      <div style={{ background: "#1a1a1a", color: "white", padding: "24px 32px", marginBottom: "24px" }}>
-        <h1 style={{ margin: 0, fontSize: "2rem", letterSpacing: "1px" }}>📰 Nederlandse Kranten</h1>
+      <div style={{ background: "var(--kop)", color: "white", padding: "24px 32px", marginBottom: "24px", position: "relative" }}>
+        <button
+          onClick={volgendThema}
+          title="Wissel tussen automatisch, licht en donker"
+          style={{
+            position: "absolute", top: "20px", right: "24px",
+            background: "rgba(255,255,255,0.12)", color: "white", border: "1px solid rgba(255,255,255,0.25)",
+            borderRadius: "20px", padding: "6px 14px", fontSize: "0.85rem", cursor: "pointer",
+            fontFamily: "Georgia, serif",
+          }}
+        >
+          {THEMA_LABEL[thema]}
+        </button>
+        <h1 style={{ margin: 0, fontSize: "2rem", letterSpacing: "1px", paddingRight: "150px" }}>📰 Nederlandse Kranten</h1>
         <p style={{ margin: "6px 0 0 0", color: "#aaa", fontSize: "0.95rem" }}>
           {geselecteerdeDatum === vandaag ? "Voorpagina's van vandaag" : "Voorpagina's"}{kopDatum && ` — ${kopDatum}`}
         </p>
@@ -152,8 +184,8 @@ function App() {
 
       {melding && (
         <div style={{
-          margin: "0 32px 20px", padding: "10px 16px", background: "#fff8e1",
-          border: "1px solid #f0d98c", borderRadius: "8px", color: "#6b5a1e", fontSize: "0.9rem",
+          margin: "0 32px 20px", padding: "10px 16px", background: "var(--melding-bg)",
+          border: "1px solid var(--melding-rand)", borderRadius: "8px", color: "var(--melding-tekst)", fontSize: "0.9rem",
         }}>
           {melding}
         </div>
@@ -161,13 +193,13 @@ function App() {
 
       {/* Datumkiezer */}
       <div style={{ padding: "0 32px", marginBottom: "28px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-        <span style={{ fontWeight: "bold", fontSize: "0.95rem", color: "#444" }}>Datum:</span>
+        <span style={{ fontWeight: "bold", fontSize: "0.95rem", color: "var(--tekst)" }}>Datum:</span>
         <select
           value={geselecteerdeDatum || ""}
           onChange={e => { setGeselecteerdeDatum(e.target.value); setIndex(null); }}
           style={{
-            padding: "8px 14px", borderRadius: "8px", border: "1px solid #ccc",
-            fontSize: "0.95rem", background: "white", cursor: "pointer",
+            padding: "8px 14px", borderRadius: "8px", border: "1px solid var(--invoer-rand)",
+            fontSize: "0.95rem", background: "var(--kaart)", color: "var(--tekst)", cursor: "pointer",
             fontFamily: "Georgia, serif",
           }}
         >
@@ -178,13 +210,13 @@ function App() {
           ))}
         </select>
         {archiefFout && (
-          <span style={{ color: "#c00", fontSize: "0.85rem" }}>⚠️ Archief kon niet worden geladen</span>
+          <span style={{ color: "var(--fout)", fontSize: "0.85rem" }}>⚠️ Archief kon niet worden geladen</span>
         )}
       </div>
 
       {/* Krantenraster */}
       {kranten.length === 0 ? (
-        <div style={{ padding: "0 32px", color: "#888" }}>
+        <div style={{ padding: "0 32px", color: "var(--tekst-zacht)" }}>
           {archief || archiefFout ? "Geen voorpagina's beschikbaar voor deze datum." : "Laden…"}
         </div>
       ) : (
@@ -199,39 +231,39 @@ function App() {
               key={krant.naam}
               onClick={() => setIndex(i)}
               style={{
-                background: "white", borderRadius: "10px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.10)", overflow: "hidden",
+                background: "var(--kaart)", borderRadius: "10px",
+                boxShadow: "0 2px 12px var(--schaduw)", overflow: "hidden",
                 cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s",
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.18)";
+                e.currentTarget.style.boxShadow = "0 8px 24px var(--schaduw-hover)";
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
+                e.currentTarget.style.boxShadow = "0 2px 12px var(--schaduw)";
               }}
             >
               <div style={{ background: krant.kleur, padding: "10px 16px" }}>
                 <span style={{ color: "white", fontWeight: "bold", fontSize: "1rem" }}>{krant.naam}</span>
               </div>
               <div style={{
-                background: "#e8e4dc", height: "340px",
+                background: "var(--beeldvak)", height: "340px",
                 display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
               }}>
                 <KrantAfbeelding
                   src={krant.voorpagina}
                   alt={`Voorpagina ${krant.naam}`}
                   stijl={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  foutStijl={{ color: "#999", textAlign: "center", padding: "20px", fontSize: "0.9rem" }}
+                  foutStijl={{ color: "var(--tekst-zacht)", textAlign: "center", padding: "20px", fontSize: "0.9rem" }}
                 />
               </div>
               <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.8rem", color: "#888" }}>Klik voor volledig scherm</span>
+                <span style={{ fontSize: "0.8rem", color: "var(--tekst-zacht)" }}>Klik voor volledig scherm</span>
                 <a
                   href={krant.url} target="_blank" rel="noopener noreferrer"
                   onClick={e => e.stopPropagation()}
-                  style={{ fontSize: "0.8rem", color: krant.kleur, textDecoration: "none", fontWeight: "bold" }}
+                  style={{ fontSize: "0.8rem", color: `var(--link, ${krant.kleur})`, textDecoration: "none", fontWeight: "bold" }}
                 >
                   Naar website →
                 </a>
@@ -261,7 +293,7 @@ function App() {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: "white", borderRadius: "12px", overflow: "hidden",
+              background: "var(--kaart)", borderRadius: "12px", overflow: "hidden",
               maxWidth: "560px", width: "100%", maxHeight: "90vh",
               display: "flex", flexDirection: "column",
             }}
@@ -283,25 +315,25 @@ function App() {
                 src={geselecteerd.voorpagina}
                 alt={`Voorpagina ${geselecteerd.naam}`}
                 stijl={{ width: "100%", display: "block" }}
-                foutStijl={{ padding: "40px", textAlign: "center", color: "#999" }}
+                foutStijl={{ padding: "40px", textAlign: "center", color: "var(--tekst-zacht)" }}
               />
             </div>
             <div style={{
-              padding: "14px 20px", borderTop: "1px solid #eee", flexShrink: 0,
+              padding: "14px 20px", borderTop: "1px solid var(--rand)", flexShrink: 0,
               display: "flex", justifyContent: "flex-end", gap: "20px", flexWrap: "wrap",
             }}>
               {hogeResolutieUrl(geselecteerd.naam, geselecteerdeDatum) && (
                 <a
                   href={hogeResolutieUrl(geselecteerd.naam, geselecteerdeDatum)}
                   target="_blank" rel="noopener noreferrer"
-                  style={{ color: geselecteerd.kleur, fontWeight: "bold", textDecoration: "none" }}
+                  style={{ color: `var(--link, ${geselecteerd.kleur})`, fontWeight: "bold", textDecoration: "none" }}
                 >
                   Bekijk in hoge resolutie ↗
                 </a>
               )}
               <a
                 href={geselecteerd.url} target="_blank" rel="noopener noreferrer"
-                style={{ color: geselecteerd.kleur, fontWeight: "bold", textDecoration: "none" }}
+                style={{ color: `var(--link, ${geselecteerd.kleur})`, fontWeight: "bold", textDecoration: "none" }}
               >
                 Bezoek {geselecteerd.naam} →
               </a>

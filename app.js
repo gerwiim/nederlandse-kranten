@@ -35,7 +35,7 @@ function KrantAfbeelding({ src, alt, stijl, foutStijl }) {
         target: "_blank",
         rel: "noopener noreferrer",
         onClick: (e) => e.stopPropagation(),
-        style: { color: "#555", fontWeight: "bold" }
+        style: { color: "var(--link-zacht)", fontWeight: "bold" }
       },
       "\u{1F4F0} Bekijk voorpagina \u2197"
     ) : /* @__PURE__ */ React.createElement(React.Fragment, null, "\u26A0\uFE0F Voorpagina", /* @__PURE__ */ React.createElement("br", null), "niet beschikbaar"));
@@ -46,7 +46,26 @@ function formatDatum(dateStr) {
   const d = /* @__PURE__ */ new Date(dateStr + "T12:00:00");
   return d.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
 }
+const THEMAS = ["auto", "licht", "donker"];
+const THEMA_LABEL = { auto: "\u{1F313} Automatisch", licht: "\u2600\uFE0F Licht", donker: "\u{1F319} Donker" };
+function leesThema() {
+  try {
+    const t = localStorage.getItem("thema");
+    return THEMAS.includes(t) ? t : "auto";
+  } catch (e) {
+    return "auto";
+  }
+}
 function App() {
+  const [thema, setThema] = useState(leesThema);
+  useEffect(() => {
+    document.documentElement.dataset.thema = thema;
+    try {
+      localStorage.setItem("thema", thema);
+    } catch (e) {
+    }
+  }, [thema]);
+  const volgendThema = () => setThema(THEMAS[(THEMAS.indexOf(thema) + 1) % THEMAS.length]);
   const [index, setIndex] = useState(null);
   const [geselecteerdeDatum, setGeselecteerdeDatum] = useState(null);
   const [archief, setArchief] = useState(null);
@@ -109,15 +128,35 @@ function App() {
     flexShrink: 0,
     transition: "background 0.15s"
   };
-  return /* @__PURE__ */ React.createElement("div", { style: { fontFamily: "Georgia, serif", background: "#f4f1ec", minHeight: "100vh", paddingBottom: "48px" } }, /* @__PURE__ */ React.createElement("div", { style: { background: "#1a1a1a", color: "white", padding: "24px 32px", marginBottom: "24px" } }, /* @__PURE__ */ React.createElement("h1", { style: { margin: 0, fontSize: "2rem", letterSpacing: "1px" } }, "\u{1F4F0} Nederlandse Kranten"), /* @__PURE__ */ React.createElement("p", { style: { margin: "6px 0 0 0", color: "#aaa", fontSize: "0.95rem" } }, geselecteerdeDatum === vandaag ? "Voorpagina's van vandaag" : "Voorpagina's", kopDatum && ` \u2014 ${kopDatum}`), bijgewerktTekst && /* @__PURE__ */ React.createElement("p", { style: { margin: "4px 0 0 0", color: "#777", fontSize: "0.8rem" } }, bijgewerktTekst)), melding && /* @__PURE__ */ React.createElement("div", { style: {
+  return /* @__PURE__ */ React.createElement("div", { style: { fontFamily: "Georgia, serif", background: "var(--achtergrond)", color: "var(--tekst)", minHeight: "100vh", paddingBottom: "48px" } }, /* @__PURE__ */ React.createElement("div", { style: { background: "var(--kop)", color: "white", padding: "24px 32px", marginBottom: "24px", position: "relative" } }, /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: volgendThema,
+      title: "Wissel tussen automatisch, licht en donker",
+      style: {
+        position: "absolute",
+        top: "20px",
+        right: "24px",
+        background: "rgba(255,255,255,0.12)",
+        color: "white",
+        border: "1px solid rgba(255,255,255,0.25)",
+        borderRadius: "20px",
+        padding: "6px 14px",
+        fontSize: "0.85rem",
+        cursor: "pointer",
+        fontFamily: "Georgia, serif"
+      }
+    },
+    THEMA_LABEL[thema]
+  ), /* @__PURE__ */ React.createElement("h1", { style: { margin: 0, fontSize: "2rem", letterSpacing: "1px", paddingRight: "150px" } }, "\u{1F4F0} Nederlandse Kranten"), /* @__PURE__ */ React.createElement("p", { style: { margin: "6px 0 0 0", color: "#aaa", fontSize: "0.95rem" } }, geselecteerdeDatum === vandaag ? "Voorpagina's van vandaag" : "Voorpagina's", kopDatum && ` \u2014 ${kopDatum}`), bijgewerktTekst && /* @__PURE__ */ React.createElement("p", { style: { margin: "4px 0 0 0", color: "#777", fontSize: "0.8rem" } }, bijgewerktTekst)), melding && /* @__PURE__ */ React.createElement("div", { style: {
     margin: "0 32px 20px",
     padding: "10px 16px",
-    background: "#fff8e1",
-    border: "1px solid #f0d98c",
+    background: "var(--melding-bg)",
+    border: "1px solid var(--melding-rand)",
     borderRadius: "8px",
-    color: "#6b5a1e",
+    color: "var(--melding-tekst)",
     fontSize: "0.9rem"
-  } }, melding), /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px", marginBottom: "28px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("span", { style: { fontWeight: "bold", fontSize: "0.95rem", color: "#444" } }, "Datum:"), /* @__PURE__ */ React.createElement(
+  } }, melding), /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px", marginBottom: "28px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("span", { style: { fontWeight: "bold", fontSize: "0.95rem", color: "var(--tekst)" } }, "Datum:"), /* @__PURE__ */ React.createElement(
     "select",
     {
       value: geselecteerdeDatum || "",
@@ -128,15 +167,16 @@ function App() {
       style: {
         padding: "8px 14px",
         borderRadius: "8px",
-        border: "1px solid #ccc",
+        border: "1px solid var(--invoer-rand)",
         fontSize: "0.95rem",
-        background: "white",
+        background: "var(--kaart)",
+        color: "var(--tekst)",
         cursor: "pointer",
         fontFamily: "Georgia, serif"
       }
     },
     beschikbareDatums.map((d) => /* @__PURE__ */ React.createElement("option", { key: d, value: d }, d === vandaag ? `Vandaag \u2014 ${formatDatum(d)}` : formatDatum(d)))
-  ), archiefFout && /* @__PURE__ */ React.createElement("span", { style: { color: "#c00", fontSize: "0.85rem" } }, "\u26A0\uFE0F Archief kon niet worden geladen")), kranten.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px", color: "#888" } }, archief || archiefFout ? "Geen voorpagina's beschikbaar voor deze datum." : "Laden\u2026") : /* @__PURE__ */ React.createElement("div", { style: {
+  ), archiefFout && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--fout)", fontSize: "0.85rem" } }, "\u26A0\uFE0F Archief kon niet worden geladen")), kranten.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px", color: "var(--tekst-zacht)" } }, archief || archiefFout ? "Geen voorpagina's beschikbaar voor deze datum." : "Laden\u2026") : /* @__PURE__ */ React.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
     gap: "24px",
@@ -147,25 +187,25 @@ function App() {
       key: krant.naam,
       onClick: () => setIndex(i),
       style: {
-        background: "white",
+        background: "var(--kaart)",
         borderRadius: "10px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
+        boxShadow: "0 2px 12px var(--schaduw)",
         overflow: "hidden",
         cursor: "pointer",
         transition: "transform 0.15s, box-shadow 0.15s"
       },
       onMouseEnter: (e) => {
         e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.18)";
+        e.currentTarget.style.boxShadow = "0 8px 24px var(--schaduw-hover)";
       },
       onMouseLeave: (e) => {
         e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
+        e.currentTarget.style.boxShadow = "0 2px 12px var(--schaduw)";
       }
     },
     /* @__PURE__ */ React.createElement("div", { style: { background: krant.kleur, padding: "10px 16px" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "white", fontWeight: "bold", fontSize: "1rem" } }, krant.naam)),
     /* @__PURE__ */ React.createElement("div", { style: {
-      background: "#e8e4dc",
+      background: "var(--beeldvak)",
       height: "340px",
       display: "flex",
       alignItems: "center",
@@ -177,17 +217,17 @@ function App() {
         src: krant.voorpagina,
         alt: `Voorpagina ${krant.naam}`,
         stijl: { width: "100%", height: "100%", objectFit: "cover" },
-        foutStijl: { color: "#999", textAlign: "center", padding: "20px", fontSize: "0.9rem" }
+        foutStijl: { color: "var(--tekst-zacht)", textAlign: "center", padding: "20px", fontSize: "0.9rem" }
       }
     )),
-    /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: "0.8rem", color: "#888" } }, "Klik voor volledig scherm"), /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: "0.8rem", color: "var(--tekst-zacht)" } }, "Klik voor volledig scherm"), /* @__PURE__ */ React.createElement(
       "a",
       {
         href: krant.url,
         target: "_blank",
         rel: "noopener noreferrer",
         onClick: (e) => e.stopPropagation(),
-        style: { fontSize: "0.8rem", color: krant.kleur, textDecoration: "none", fontWeight: "bold" }
+        style: { fontSize: "0.8rem", color: `var(--link, ${krant.kleur})`, textDecoration: "none", fontWeight: "bold" }
       },
       "Naar website \u2192"
     ))
@@ -228,7 +268,7 @@ function App() {
       {
         onClick: (e) => e.stopPropagation(),
         style: {
-          background: "white",
+          background: "var(--kaart)",
           borderRadius: "12px",
           overflow: "hidden",
           maxWidth: "560px",
@@ -259,12 +299,12 @@ function App() {
           src: geselecteerd.voorpagina,
           alt: `Voorpagina ${geselecteerd.naam}`,
           stijl: { width: "100%", display: "block" },
-          foutStijl: { padding: "40px", textAlign: "center", color: "#999" }
+          foutStijl: { padding: "40px", textAlign: "center", color: "var(--tekst-zacht)" }
         }
       )),
       /* @__PURE__ */ React.createElement("div", { style: {
         padding: "14px 20px",
-        borderTop: "1px solid #eee",
+        borderTop: "1px solid var(--rand)",
         flexShrink: 0,
         display: "flex",
         justifyContent: "flex-end",
@@ -276,7 +316,7 @@ function App() {
           href: hogeResolutieUrl(geselecteerd.naam, geselecteerdeDatum),
           target: "_blank",
           rel: "noopener noreferrer",
-          style: { color: geselecteerd.kleur, fontWeight: "bold", textDecoration: "none" }
+          style: { color: `var(--link, ${geselecteerd.kleur})`, fontWeight: "bold", textDecoration: "none" }
         },
         "Bekijk in hoge resolutie \u2197"
       ), /* @__PURE__ */ React.createElement(
@@ -285,7 +325,7 @@ function App() {
           href: geselecteerd.url,
           target: "_blank",
           rel: "noopener noreferrer",
-          style: { color: geselecteerd.kleur, fontWeight: "bold", textDecoration: "none" }
+          style: { color: `var(--link, ${geselecteerd.kleur})`, fontWeight: "bold", textDecoration: "none" }
         },
         "Bezoek ",
         geselecteerd.naam,

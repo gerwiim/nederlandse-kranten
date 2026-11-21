@@ -5,6 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nederlandse Kranten</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>" />
+    <style>
+      /* Kleuren voor licht en donker. "auto" volgt de instelling van het apparaat. */
+      :root {
+        color-scheme: light;
+        --achtergrond: #f4f1ec;
+        --kaart: #ffffff;
+        --beeldvak: #e8e4dc;
+        --kop: #1a1a1a;
+        --tekst: #444444;
+        --tekst-zacht: #888888;
+        --link-zacht: #555555;
+        --rand: #eeeeee;
+        --invoer-rand: #cccccc;
+        --schaduw: rgba(0, 0, 0, 0.10);
+        --schaduw-hover: rgba(0, 0, 0, 0.18);
+        --melding-bg: #fff8e1;
+        --melding-rand: #f0d98c;
+        --melding-tekst: #6b5a1e;
+        --fout: #cc0000;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-thema="licht"]) {
+          color-scheme: dark;
+          --achtergrond: #121212;
+          --kaart: #1e1e1e;
+          --beeldvak: #2a2a2a;
+          --kop: #000000;
+          --tekst: #dddddd;
+          --tekst-zacht: #9a9a9a;
+          --link-zacht: #cccccc;
+          --link: #e0e0e0;
+          --rand: #333333;
+          --invoer-rand: #444444;
+          --schaduw: rgba(0, 0, 0, 0.5);
+          --schaduw-hover: rgba(0, 0, 0, 0.7);
+          --melding-bg: #3a3320;
+          --melding-rand: #6b5a1e;
+          --melding-tekst: #f0d98c;
+          --fout: #ff6b6b;
+        }
+      }
+      :root[data-thema="donker"] {
+        color-scheme: dark;
+        --achtergrond: #121212;
+        --kaart: #1e1e1e;
+        --beeldvak: #2a2a2a;
+        --kop: #000000;
+        --tekst: #dddddd;
+        --tekst-zacht: #9a9a9a;
+        --link-zacht: #cccccc;
+        --link: #e0e0e0;
+        --rand: #333333;
+        --invoer-rand: #444444;
+        --schaduw: rgba(0, 0, 0, 0.5);
+        --schaduw-hover: rgba(0, 0, 0, 0.7);
+        --melding-bg: #3a3320;
+        --melding-rand: #6b5a1e;
+        --melding-tekst: #f0d98c;
+        --fout: #ff6b6b;
+      }
+      body { background: var(--achtergrond); }
+    </style>
+    <script>
+      // Zet het gekozen thema direct, zodat de pagina niet eerst licht oplicht.
+      try { document.documentElement.dataset.thema = localStorage.getItem("thema") || "auto"; } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
