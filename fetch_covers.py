@@ -19,6 +19,7 @@ HEADERS = {
 }
 
 ARCHIEF_BESTAND = "archive.json"
+STATUS_BESTAND = "status.json"
 COVERS_MAP = "covers"
 MAX_DAGEN = 7
 
@@ -168,8 +169,21 @@ def ruim_oude_covers_op(bewaarde_datums):
 
 # ─── Uitvoeren ────────────────────────────────────────────────────────────────
 
+def schrijf_status():
+    # Tijdstip van de laatste run, getoond als "Bijgewerkt om ..." op de site.
+    with open(STATUS_BESTAND, "w", encoding="utf-8") as f:
+        json.dump({"bijgewerkt": now.isoformat(timespec="minutes")}, f)
+
+
 if __name__ == "__main__":
     print(f"Datum: {vandaag} ({now:%H:%M} Nederlandse tijd)")
+
+    if vandaag_datum.weekday() == 6:
+        # Op zondag verschijnen er geen kranten. Niets ophalen, anders komen
+        # de voorpagina's van zaterdag onder de datum van zondag te staan.
+        print("Zondag: er verschijnen geen kranten, niets opgehaald.")
+        schrijf_status()
+        raise SystemExit(0)
 
     nieuwe_urls = {}
 
@@ -200,6 +214,11 @@ if __name__ == "__main__":
     except (FileNotFoundError, json.JSONDecodeError):
         archief = {}
 
+    # Zondagen horen niet in het archief (ruimt ook oude zondag-items op).
+    for datum in [d for d in archief if date.fromisoformat(d).weekday() == 6]:
+        del archief[datum]
+        print(f" 🗑 Zondag verwijderd uit archief: {datum}")
+
     # Samenvoegen: als een krant bij de tweede run van de dag mislukt,
     # blijft het resultaat van de eerste run staan. Een lokaal bestand wordt
     # niet overschreven door een (mogelijk niet werkende) externe fallback-URL.
@@ -222,5 +241,6 @@ if __name__ == "__main__":
     print(f"archive.json bijgewerkt ({len(archief)} dagen opgeslagen).")
 
     ruim_oude_covers_op(set(archief.keys()))
+    schrijf_status()
 
     print("Klaar!")
