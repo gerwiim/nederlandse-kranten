@@ -20,6 +20,14 @@ const krantenMeta = [
   { naam: "de Volkskrant",          url: "https://www.volkskrant.nl/", kleur: "#CC0000" },
 ];
 
+// Het RD staat in hoge resolutie op digibron.nl. Die site laat zich niet als
+// plaatje insluiten (beveiligingscontrole), maar opent wel in een eigen tabblad.
+function hogeResolutieUrl(naam, datum) {
+  if (naam !== "Reformatorisch Dagblad" || !datum) return null;
+  const [j, m, d] = datum.split("-");
+  return `https://www.digibron.nl/images/generated/reformatorisch-dagblad/katern-nieuws/${j}/${m}/${d}/1-large.jpg`;
+}
+
 function KrantAfbeelding({ src, alt, stijl, foutStijl }) {
   const [fout, setFout] = useState(false);
   useEffect(() => { setFout(false); }, [src]);
@@ -241,7 +249,19 @@ function App() {
                 foutStijl={{ padding: "40px", textAlign: "center", color: "#999" }}
               />
             </div>
-            <div style={{ padding: "14px 20px", textAlign: "right", borderTop: "1px solid #eee", flexShrink: 0 }}>
+            <div style={{
+              padding: "14px 20px", borderTop: "1px solid #eee", flexShrink: 0,
+              display: "flex", justifyContent: "flex-end", gap: "20px", flexWrap: "wrap",
+            }}>
+              {hogeResolutieUrl(geselecteerd.naam, geselecteerdeDatum) && (
+                <a
+                  href={hogeResolutieUrl(geselecteerd.naam, geselecteerdeDatum)}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ color: geselecteerd.kleur, fontWeight: "bold", textDecoration: "none" }}
+                >
+                  Bekijk in hoge resolutie ↗
+                </a>
+              )}
               <a
                 href={geselecteerd.url} target="_blank" rel="noopener noreferrer"
                 style={{ color: geselecteerd.kleur, fontWeight: "bold", textDecoration: "none" }}
